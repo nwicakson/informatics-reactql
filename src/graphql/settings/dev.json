@@ -1,0 +1,28 @@
+{
+  "public": {
+    "uploads": "http://localhost/nwicakson/wordpress/wp-content/uploads/",
+    "amazonS3": false,
+    "staffProperties": [
+      "name",
+      "category",
+      "email",
+      "field_of_research",
+      "last_education_degree",
+      "last_education_place",
+      "position"
+    ],
+    "graphql": {
+      "host": "localhost",
+      "port": 3001
+    }
+  },
+  "private": {
+    "wpPrefix": "wp_",
+    "database": {
+      "name": "review",
+      "username": "root",
+      "password": "",
+      "host": "localhost"
+    }
+  }
+}
