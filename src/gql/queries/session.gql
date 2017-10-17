@@ -1,0 +1,15 @@
+{
+  session {
+    ok
+    jwt
+    errors {
+      field
+      message
+    }
+    user {
+      id
+      user_nicename
+      user_email
+    }
+  }
+}

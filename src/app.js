@@ -24,7 +24,7 @@ import config from 'kit/config';
 import counterReducer from 'src/reducers/counter';
 
 // Main component -- i.e. the 'root' React component in our app
-import Main from 'src/components/main';
+import Main from 'src/components/mainLayout';
 
 // Init global styles.  These will be added to the resulting CSS automatically
 // without any class hashing.  Use this to include default or framework CSS.
@@ -93,6 +93,31 @@ if (SERVER) {
   // doing this inside a `SERVER` block to avoid importing a potentially large
   // file, which would then inflate our client bundle unnecessarily
   config.setGraphQLSchema(require('src/graphql/schema').default);
+
+  // Set-up CORS to allow credentials to be passed to origins outside of the
+  // server.  We'll need this in order to test this out in development on :8080
+  config.setCORSOptions({
+    credentials: true,
+  });
+
+  /* MIDDLEWARE */
+
+  // Add an `Authorization` parser that will store any passed JWT tokens in
+  // Koa's request context, so that we can subsequently pass it along to any
+  // GraphQL requests that require it (like the { session } shaped query)
+  config.addMiddleware(async (ctx, next) => {
+    // Check the Authorization:` header or cookie for the JWT
+    const authHeader = ctx.get('authorization') || ctx.cookies.get('reactQLJWT');
+
+    if (authHeader) {
+      // Strip out the `Bearer` prefix, so we're left with just the JWT and
+      // store it on Koa's `ctx.state``.  At this point, it's unverified, but
+      // we'll leave it to the relevant GraphQL query to do the validation
+      // at the time of the data request, rather than taking up extra CPU cycles
+      ctx.state.jwt = authHeader.replace(/^bearer\s*/i, '');
+    }
+    return next();
+  });
 
   /* CUSTOM ROUTES */
 
@@ -194,6 +219,29 @@ if (SERVER) {
     // Always return `next()`, otherwise the request won't 'pass' to the next
     // middleware in the stack (likely, the React handler)
     return next();
+  });
+} else {
+  /* BROWSER ONLY */
+
+  // We don't bother running this stuff on the server, before it's simply
+  // not relevant in that environment and/or could cause clashes (for example,
+  // with Apollo middleware)
+
+  // Set the Apollo CORS config, so that we can interpret `Set-Cookie`
+  // headers for subsequent requests back to the SSR version
+  config.setApolloNetworkOptions({
+    credentials: 'include',
+  });
+
+  // Add Apollo request middleware to use the latest JWT token on every
+  // request, so that our previously logged in state can be 'remembered'
+  config.addApolloMiddleware((req, next) => {
+    const jwt = localStorage.getItem('reactQLJWT');
+    req.options.headers = {
+      ...req.options.headers,
+      authorization: jwt || null,
+    };
+    next();
   });
 }
 

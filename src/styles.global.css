@@ -2,6 +2,8 @@
 you can import locally, and they wind up in the resulting bundle */
 @import url('https://fonts.googleapis.com/css?family=Gentium+Basic');
 @import '~antd/dist/antd.css';
+@import './components/styles/typography.scss';
+@@import './components/styles/hljs.scss';
 
 html {
   padding: 0;

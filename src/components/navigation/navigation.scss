@@ -1,0 +1,30 @@
+.trigger {
+  font-size: 18px;
+  line-height: 64px;
+  padding: 0 16px;
+  cursor: pointer;
+  transition: color .3s;
+  :hover {
+    color: #108ee9;
+  }
+}
+
+.sidebarMenu {
+  height: 100%;
+  border-right: 0;
+}
+
+.navRight {
+  float: right;
+  padding: 0 16px 0px 16px;
+  div {
+    display: inline-block;
+    margin-left: 16px;
+  }
+}
+
+.content {
+  p{
+    font-size: 1.2rem;
+  }
+}

@@ -1,3 +1,4 @@
+// it's like rest endpoint
 const Definitions = `
   type Menu {
     id: ID!
@@ -64,6 +65,8 @@ const Definitions = `
 
   type User {
     id: Int
+    user_login: String
+    user_pass: String
     user_nicename: String
     user_email: String
     user_registered: String
@@ -73,16 +76,35 @@ const Definitions = `
   type Setting {
     uploads: String
     amazonS3: Boolean
+    defaultThumbnail: String
   }
 
   type Staff {
     id: Int
     name: String
     email: String
-    field_of_research: [String]
+    field_of_research: String
     last_education_degree: String
     last_education_place: String
     position: String
+  }
+
+  type Field {
+    field: String
+    message: String
+  }
+
+  type UserResponse {
+    ok: Boolean!
+    errors: [Field]
+    user: User
+  }
+
+  type Session {
+    ok: Boolean!
+    errors: [Field]
+    jwt: String
+    user: User
   }
 
   type Query {
@@ -94,12 +116,17 @@ const Definitions = `
     postmeta(post_id: Int, after: String, first: Int, before: String, last: Int): Postmeta
     user(id: Int): User
     staffs: [Staff]
-    staff(id: Int): Staff
+    session: Session
+  }
+
+  type Mutation {
+    login(username: String, password: String): Session
   }
 
   schema {
     query: Query
+    mutation: Mutation
   }
-`
+`;
 
-export default [Definitions]
+export default [Definitions];

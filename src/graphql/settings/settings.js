@@ -1,6 +1,6 @@
-const settings = require('./dev.json')
+const settings = require('./dev.json');
 
-const publicSettings = settings.public
-const privateSettings = settings.private
+const publicSettings = settings.public;
+const privateSettings = settings.private;
 
-export { publicSettings, privateSettings }
+export { publicSettings, privateSettings };

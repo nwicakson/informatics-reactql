@@ -11,10 +11,7 @@
       "last_education_place",
       "position"
     ],
-    "graphql": {
-      "host": "localhost",
-      "port": 3001
-    }
+    "defaultThumbnail": "default-thumbnail.jpg"
   },
   "private": {
     "wpPrefix": "wp_",
