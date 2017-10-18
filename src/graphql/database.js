@@ -53,61 +53,68 @@ export default class Database {
         post_name: { type: Sequelize.STRING },
         post_parent: { type: Sequelize.INTEGER },
         menu_order: { type: Sequelize.INTEGER },
-      }),
+      }, { underscored: true }),
       Postmeta: Conn.define(`${prefix}postmeta`, {
         meta_id: { type: Sequelize.INTEGER, primaryKey: true, field: 'meta_id' },
         post_id: { type: Sequelize.INTEGER },
         meta_key: { type: Sequelize.STRING },
         meta_value: { type: Sequelize.INTEGER },
-      }),
+      }, { underscored: true }),
       User: Conn.define(`${prefix}users`, {
-        id: { type: Sequelize.UUID, primaryKey: true, defaultValue: Sequelize.UUIDV4 },
+        id: { type: Sequelize.INTEGER, primaryKey: true },
         user_login: { type: Sequelize.STRING },
         user_pass: { type: Sequelize.TEXT, allowNull: true },
         user_nicename: { type: Sequelize.STRING },
         user_email: { type: Sequelize.STRING, allowNull: false },
         user_registered: { type: Sequelize.STRING },
         display_name: { type: Sequelize.STRING },
+      }, { underscored: true }),
+      Usermeta: Conn.define(`${prefix}usermeta`, {
+        umeta_id: { type: Sequelize.INTEGER, primaryKey: true },
+        user_id: { type: Sequelize.INTEGER },
+        meta_key: { type: Sequelize.STRING },
+        meta_value: { type: Sequelize.STRING },
       }),
       Terms: Conn.define(`${prefix}terms`, {
         term_id: { type: Sequelize.INTEGER, primaryKey: true },
         name: { type: Sequelize.STRING },
         slug: { type: Sequelize.STRING },
         term_group: { type: Sequelize.INTEGER },
-      }),
+      }, { underscored: true }),
       TermRelationships: Conn.define(`${prefix}term_relationships`, {
         object_id: { type: Sequelize.INTEGER, primaryKey: true },
         term_taxonomy_id: { type: Sequelize.INTEGER },
         term_order: { type: Sequelize.INTEGER },
-      }),
+      }, { underscored: true }),
       TermTaxonomy: Conn.define(`${prefix}term_taxonomy`, {
         term_taxonomy_id: { type: Sequelize.INTEGER, primaryKey: true },
         term_id: { type: Sequelize.INTEGER },
         taxonomy: { type: Sequelize.STRING },
         parent: { type: Sequelize.INTEGER },
         count: { type: Sequelize.INTEGER },
-      }),
+      }, { underscored: true }),
       Session: Conn.define('sessions', {
         id: { type: Sequelize.UUID, primaryKey: true, defaultValue: Sequelize.UUIDV4 },
-        expiresAt: { type: Sequelize.DATE, allowNull: false },
+        user_id: { type: Sequelize.INTEGER },
+        expires_at: { type: Sequelize.DATE, allowNull: true },
       }, {
         hooks: {
           beforeValidate(inst) {
             // Set expiration to be 30 days from now
             const now = new Date();
             now.setDate(now.getDate() + 30);
-            inst.expiresAt = now;
+            /* eslint-disable no-param-reassign */
+            inst.expires_at = now;
           },
         },
-      }),
+      }, { underscored: true }),
     };
   }
 
   getConnectors() {
     const { amazonS3, uploads, defaultThumbnail, staffProperties } = this.settings.publicSettings;
-    const { Post, Postmeta, User, Terms, TermRelationships, Session } = this.getModels();
+    const { Post, Postmeta, User, Usermeta, Terms, TermRelationships, Session } = this.getModels();
     const prefix = this.settings.privateSettings.wpPrefix;
-    // Session.sync();
 
     Terms.hasMany(TermRelationships, { foreignKey: 'term_taxonomy_id' });
     TermRelationships.belongsTo(Terms, { foreignKey: 'term_taxonomy_id' });
@@ -120,8 +127,13 @@ export default class Database {
     Post.hasMany(Postmeta, { foreignKey: 'post_id' });
     Postmeta.belongsTo(Post, { foreignKey: 'post_id' });
 
+    User.hasMany(Usermeta, { foreignKey: 'user_id' });
+    Usermeta.belongsTo(User, { foreignKey: 'user_id' });
+
     User.hasMany(Session, { foreignKey: 'user_id' });
     Session.belongsTo(User, { foreignKey: 'user_id' });
+
+    this.connection.sync();
 
     Session.prototype.jwt = function jwt() {
       return encodeJWT({
@@ -178,6 +190,23 @@ export default class Database {
 
       e.throwIf();
 
+      const checkCapabilities = await Usermeta.findOne({
+        attributes: ['umeta_id'],
+        where: {
+          user_id: user.id,
+          meta_key: 'wp_capabilities',
+          meta_value: {
+            $like: '%subscriber%',
+          },
+        },
+      });
+
+      if (!checkCapabilities) {
+        e.set('username', 'An account with that username does not exist.');
+      }
+
+      e.throwIf();
+
       // Check that the passwords match
       if (!await hasher.CheckPassword(data.password, user.user_pass)) {
         e.set('password', 'Your password is incorrect.');
@@ -199,7 +228,7 @@ export default class Database {
           // JWT -- store it on a cookie so that we can re-use it for future
           // requests to the server
           ctx.cookies.set('reactQLJWT', session.jwt(), {
-            expires: session.expiresAt,
+            expires: session.expires_at,
           });
 
           // Return the session record from the DB

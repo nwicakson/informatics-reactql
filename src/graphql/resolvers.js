@@ -70,8 +70,12 @@ export default function Resolvers(Connectors, publicSettings) {
       },
     },
     Session: {
-      jwt(obj) { return obj.session && obj.session.jwt(); },
-      user(obj) { return Connectors.getUser(obj.session.user_id); },
+      jwt(obj) {
+        return obj.session && obj.session.jwt();
+      },
+      user(obj) {
+        return obj.session && obj.session.user_id && Connectors.getUser(obj.session.user_id);
+      },
     },
   };
 }
