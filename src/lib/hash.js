@@ -9,6 +9,7 @@
 
 // JSON web tokens
 import jwt from 'jsonwebtoken';
+import hasher from 'wordpress-hash-node';
 
 // ----------------------
 
@@ -28,4 +29,13 @@ export function encodeJWT(data) {
 // so always catch it!
 export function decodeJWT(token) {
   return jwt.verify(token, JWT_SECRET);
+}
+
+export async function checkPassword(plainTextPassword, hash) {
+  return new Promise((ok, reject) => (
+    hasher.CheckPassword(plainTextPassword, hash, (e, doesMatch) => {
+      if (e) return reject(e);
+      return ok(doesMatch);
+    })
+  ));
 }

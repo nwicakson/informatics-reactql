@@ -64,58 +64,14 @@ export default function Resolvers(Connectors, publicSettings) {
         return Connectors.getPostById(postmeta.meta_value);
       },
     },
-    Menu: {
-      items(menu) {
-        return menu.items;
-      },
-    },
     MenuItem: {
       navitem(menuItem) {
         return Connectors.getPostById(menuItem.linkedId);
       },
-      children(menuItem) {
-        return menuItem.children;
-      },
-    },
-    Staff: {
-      name(staff) {
-        return staff.name;
-      },
-      email(staff) {
-        return staff.email;
-      },
-      field_of_research(staff) {
-        //
-        return staff.field_of_research;
-      },
-      last_education_degree(staff) {
-        return staff.last_education_degree;
-      },
-      last_education_place(staff) {
-        return staff.last_education_place;
-      },
-      position(staff) {
-        return staff.position;
-      },
-    },
-    User: {
-      id(user) { return user.id; },
-      user_login(user) { return user.user_login; },
-      user_pass(user) { return user.user_pass; },
-      user_nicename(user) { return user.user_nicename; },
-      user_email(user) { return user.user_email; },
-      user_registered(user) { return user.user_registered; },
-      display_name(user) { return user.display_name; },
     },
     Session: {
-      ok(obj) { return obj.ok; },
-      errors(obj) { return obj.errors; },
       jwt(obj) { return obj.session && obj.session.jwt(); },
-      user(obj) { return obj.session && obj.session.getUser(); },
-    },
-    Field: {
-      field(obj) { return obj.field; },
-      message(obj) { return obj.message; },
+      user(obj) { return Connectors.getUser(obj.session.user_id); },
     },
   };
 }

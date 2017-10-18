@@ -61,11 +61,11 @@ export default class Database {
         meta_value: { type: Sequelize.INTEGER },
       }),
       User: Conn.define(`${prefix}users`, {
-        id: { type: Sequelize.INTEGER, primaryKey: true },
+        id: { type: Sequelize.UUID, primaryKey: true, defaultValue: Sequelize.UUIDV4 },
         user_login: { type: Sequelize.STRING },
-        user_pass: { type: Sequelize.STRING },
+        user_pass: { type: Sequelize.TEXT, allowNull: true },
         user_nicename: { type: Sequelize.STRING },
-        user_email: { type: Sequelize.STRING },
+        user_email: { type: Sequelize.STRING, allowNull: false },
         user_registered: { type: Sequelize.STRING },
         display_name: { type: Sequelize.STRING },
       }),
@@ -87,7 +87,7 @@ export default class Database {
         parent: { type: Sequelize.INTEGER },
         count: { type: Sequelize.INTEGER },
       }),
-      Session: Conn.define('session', {
+      Session: Conn.define('sessions', {
         id: { type: Sequelize.UUID, primaryKey: true, defaultValue: Sequelize.UUIDV4 },
         expiresAt: { type: Sequelize.DATE, allowNull: false },
       }, {
@@ -107,7 +107,7 @@ export default class Database {
     const { amazonS3, uploads, defaultThumbnail, staffProperties } = this.settings.publicSettings;
     const { Post, Postmeta, User, Terms, TermRelationships, Session } = this.getModels();
     const prefix = this.settings.privateSettings.wpPrefix;
-    Session.sync();
+    // Session.sync();
 
     Terms.hasMany(TermRelationships, { foreignKey: 'term_taxonomy_id' });
     TermRelationships.belongsTo(Terms, { foreignKey: 'term_taxonomy_id' });
@@ -120,8 +120,8 @@ export default class Database {
     Post.hasMany(Postmeta, { foreignKey: 'post_id' });
     Postmeta.belongsTo(Post, { foreignKey: 'post_id' });
 
-    User.hasMany(Session);
-    Session.belongsTo(User);
+    User.hasMany(Session, { foreignKey: 'user_id' });
+    Session.belongsTo(User, { foreignKey: 'user_id' });
 
     Session.prototype.jwt = function jwt() {
       return encodeJWT({
@@ -132,11 +132,9 @@ export default class Database {
     // Create a new session.  Accepts a loaded user instance, and returns a
     // new session object
     async function createSession(user) {
-      const session = await Session.create({
-        where: { userId: user.id },
-        attributes: ['id', 'expiresAt'],
+      return Session.create({
+        user_id: user.id,
       });
-      return session;
     }
 
     // Retrieve a session based on the JWT token.
@@ -151,7 +149,7 @@ export default class Database {
         if (!data.id) throw new Error();
 
         // Check that we've got a valid session
-        session = await Session.findById(data.id, { attributes: ['id', 'expiresAt'] });
+        session = await Session.findById(data.id);
         if (!session) throw new Error();
       } catch (_) {
         e.set('session', 'Invalid session ID');
@@ -222,9 +220,6 @@ export default class Database {
           // Attempt to retrieve the JWT based on the token that *may* be
           // available on the request context's `state`
           const session = await getSessionOnJWT(ctx.state.jwt);
-          // const e = new FormError();
-          // e.set('session', session);
-          // e.throwIf();
           // Return the session record from the DB
           return {
             ok: true,
