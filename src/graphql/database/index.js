@@ -88,15 +88,8 @@ export default class Database {
         count: { type: Sequelize.INTEGER },
       }),
       Session: Conn.define('session', {
-        id: {
-          type: Sequelize.UUID,
-          primaryKey: true,
-          defaultValue: Sequelize.UUIDV4,
-        },
-        expiresAt: {
-          type: Sequelize.DATE,
-          allowNull: false,
-        },
+        id: { type: Sequelize.UUID, primaryKey: true, defaultValue: Sequelize.UUIDV4 },
+        expiresAt: { type: Sequelize.DATE, allowNull: false },
       }, {
         hooks: {
           beforeValidate(inst) {
@@ -139,9 +132,11 @@ export default class Database {
     // Create a new session.  Accepts a loaded user instance, and returns a
     // new session object
     async function createSession(user) {
-      return Session.create({
-        id: user.id,
+      const session = await Session.create({
+        where: { userId: user.id },
+        attributes: ['id', 'expiresAt'],
       });
+      return session;
     }
 
     // Retrieve a session based on the JWT token.
@@ -153,10 +148,10 @@ export default class Database {
         // Attempt to decode the JWT token
         const data = decodeJWT(token);
         // We should have an ID attribute
-        if (!data) throw new Error();
+        if (!data.id) throw new Error();
 
         // Check that we've got a valid session
-        session = Session.findById(data.id, { attributes: ['id', 'expiresAt'] });
+        session = await Session.findById(data.id, { attributes: ['id', 'expiresAt'] });
         if (!session) throw new Error();
       } catch (_) {
         e.set('session', 'Invalid session ID');
@@ -175,9 +170,7 @@ export default class Database {
 
       // Attempt to find the user based on the username
       const user = await User.findOne({
-        where: {
-          user_login: data.username,
-        },
+        where: { user_login: data.username },
       });
 
       // If we don't have a valid user, throw.
@@ -194,15 +187,16 @@ export default class Database {
 
       e.throwIf();
 
+      const session = await createSession(user);
+
       // Create the new session
-      return createSession(user);
+      return session;
     }
 
     return {
       async login(args, ctx) {
         try {
           const session = await login(args);
-
           // If getting the JWT didn't throw, then we know we have a valid
           // JWT -- store it on a cookie so that we can re-use it for future
           // requests to the server
@@ -228,7 +222,9 @@ export default class Database {
           // Attempt to retrieve the JWT based on the token that *may* be
           // available on the request context's `state`
           const session = await getSessionOnJWT(ctx.state.jwt);
-
+          const e = new FormError();
+          e.set('session', session);
+          e.throwIf();
           // Return the session record from the DB
           return {
             ok: true,
@@ -392,11 +388,7 @@ export default class Database {
       },
 
       getUser(id) {
-        return User.findOne({
-          where: {
-            ID: id,
-          },
-        });
+        return User.findById(id);
       },
 
       getPostLayout(postId) {

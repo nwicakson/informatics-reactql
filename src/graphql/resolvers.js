@@ -107,11 +107,6 @@ export default function Resolvers(Connectors, publicSettings) {
       user_registered(user) { return user.user_registered; },
       display_name(user) { return user.display_name; },
     },
-    UserResponse: {
-      ok(obj) { return obj.ok; },
-      errors(obj) { return obj.errors; },
-      user(obj) { return obj.user; },
-    },
     Session: {
       ok(obj) { return obj.ok; },
       errors(obj) { return obj.errors; },

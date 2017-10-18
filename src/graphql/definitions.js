@@ -64,7 +64,7 @@ const Definitions = `
   }
 
   type User {
-    id: Int
+    id: String
     user_login: String
     user_pass: String
     user_nicename: String
@@ -94,12 +94,6 @@ const Definitions = `
     message: String
   }
 
-  type UserResponse {
-    ok: Boolean!
-    errors: [Field]
-    user: User
-  }
-
   type Session {
     ok: Boolean!
     errors: [Field]
@@ -114,7 +108,7 @@ const Definitions = `
     post(name: String, id: Int): Post
     category(term_id: Int): Category
     postmeta(post_id: Int, after: String, first: Int, before: String, last: Int): Postmeta
-    user(id: Int): User
+    user(id: String): User
     staffs: [Staff]
     session: Session
   }

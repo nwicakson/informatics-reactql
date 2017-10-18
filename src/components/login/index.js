@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { Form, Icon, Input, Button } from 'antd';
 import { graphql } from 'react-apollo';
-import sessionQuery from 'src/gql/queries/session.gql';
-import loginMutation from 'src/gql/mutations/login.gql';
+import sessionQuery from 'src/graphql/gql/queries/session.gql';
+import loginMutation from 'src/graphql/gql/mutations/login.gql';
 import css from './login.scss';
 
 const FormItem = Form.Item;
