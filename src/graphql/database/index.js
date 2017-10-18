@@ -222,9 +222,9 @@ export default class Database {
           // Attempt to retrieve the JWT based on the token that *may* be
           // available on the request context's `state`
           const session = await getSessionOnJWT(ctx.state.jwt);
-          const e = new FormError();
-          e.set('session', session);
-          e.throwIf();
+          // const e = new FormError();
+          // e.set('session', session);
+          // e.throwIf();
           // Return the session record from the DB
           return {
             ok: true,
