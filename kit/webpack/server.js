@@ -85,7 +85,6 @@ export default new WebpackConfig().extend({
             'syntax-dynamic-import',
             'transform-class-properties',
             'transform-decorators-legacy',
-            // ['import', { libraryName: 'antd', style: true }],
           ],
         },
       },

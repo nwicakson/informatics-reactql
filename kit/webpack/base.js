@@ -47,9 +47,10 @@ export default new WebpackConfig().merge({
     // short-hand imports without knowing the full/relative path.  If it
     // doesn't find anything, then it'll check `node_modules` as normal
     modules: [
+      PATHS.src,
       PATHS.root,
       'node_modules',
-    ]
+    ],
   },
 
   // File type config and the loaders that will handle them.  This makes it
@@ -98,7 +99,7 @@ export default new WebpackConfig().merge({
     path: PATHS.public,
 
     // Deem the `dist` folder to be the root of our web server
-    publicPath: '/',
+    publicPath: '',
 
     // Filenames will simply be <name>.js
     filename: '[name].js',

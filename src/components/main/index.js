@@ -70,6 +70,7 @@ export default class Main extends Component {
       <div>
         <Helmet>
           <title>Departemen Informatika, FTIK – ITS</title>
+          <link rel="icon" href={iconHome} />
           <meta property="og:site_name" content="Departemen Informatika, FTIK – ITS" />
           <meta property="og:title" content="Departemen Informatika, FTIK – ITS" />
           <meta property="og:url" content={window.location.pathname} />
