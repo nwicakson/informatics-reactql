@@ -1,0 +1,10 @@
+query getMyPosts($statuses: [String], $categories: [String], $limit: Int, $skip: Int) {
+  my_posts(statuses: $statuses, categories: $categories, limit: $limit, skip: $skip) {
+    id
+    post_title
+    post_excerpt
+    post_status
+    categories
+  }
+  my_total_posts(statuses: $statuses, categories: $categories)
+}

@@ -3,7 +3,7 @@ import { map } from 'lodash';
 import hljs from 'highlightjs';
 import Shortcodes from './shortcodes';
 
-export default class PostContent extends Component {
+export default class SinglePost extends Component {
   componentDidMount() {
     const content = this._content;
 

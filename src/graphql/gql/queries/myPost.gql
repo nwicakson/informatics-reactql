@@ -1,0 +1,10 @@
+query getMyPost($id: Int) {
+  my_post(id: $id) {
+    id
+    post_title
+    post_excerpt
+    post_content
+    post_status
+    categories
+  }
+}

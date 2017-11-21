@@ -7,11 +7,15 @@ export default function Resolvers(Connectors, publicSettings) {
         obj.defaultThumbnail = Connectors.getDefaultThumbnail();
         return obj;
       },
-      category(_, { term_id }) {
-        return Connectors.getCategoryById(term_id);
+      category(_, { term_id: termId, slug }) {
+        if (termId) return Connectors.getCategoryById(termId);
+        return Connectors.getCategory(slug);
       },
       posts(_, args) {
         return Connectors.getPosts(args);
+      },
+      total_posts(_, args) {
+        return Connectors.getTotalPosts(args);
       },
       menu(_, { name }) {
         return Connectors.getMenu(name);
@@ -34,20 +38,47 @@ export default function Resolvers(Connectors, publicSettings) {
       async session(_, args, ctx) {
         return Connectors.session(args, ctx);
       },
+      async my_post(_, { id }, ctx) {
+        return Connectors.getMyPost(id, ctx);
+      },
+      async my_posts(_, args, ctx) {
+        return Connectors.getMyPosts(args, ctx);
+      },
+      async my_total_posts(_, args, ctx) {
+        return Connectors.getMyTotalPosts(args, ctx);
+      },
+      categories() {
+        return Connectors.getCategories();
+      },
+      links() {
+        return Connectors.getLinks();
+      },
     },
     Mutation: {
-      async login(_, args, ctx) {
-        return Connectors.login(args, ctx);
+      async login(_, args) {
+        return Connectors.login(args);
+      },
+      async create_post(_, args, ctx) {
+        return Connectors.createPost(args, ctx);
+      },
+      async edit_post(_, args, ctx) {
+        return Connectors.editPost(args, ctx);
+      },
+      async delete_post(_, { id }, ctx) {
+        return Connectors.deletePost(id, ctx);
       },
     },
     Category: {
       posts(category, args) {
         return Connectors.getPostsInCategory(category.term_id, args);
       },
+      total_posts(category, args) {
+        return Connectors.getTotalPostsInCategory(category.term_id, args);
+      },
     },
     Post: {
-      layout(post) {
-        return Connectors.getPostLayout(post.id);
+      async categories(post) {
+        return Connectors.getCategoriesByPostId(post.id);
       },
       post_meta(post, keys) {
         return Connectors.getPostmeta(post.id, keys);
@@ -66,15 +97,20 @@ export default function Resolvers(Connectors, publicSettings) {
     },
     MenuItem: {
       navitem(menuItem) {
-        return Connectors.getPostById(menuItem.linkedId);
+        if (menuItem.object_type !== 'category') return Connectors.getPostById(menuItem.linkedId);
+        return null;
+      },
+      navitemcategory(menuItem) {
+        if (menuItem.object_type === 'category') { return Connectors.getCategoryById(menuItem.linkedId); }
+        return null;
       },
     },
     Session: {
       jwt(obj) {
-        return obj.session && obj.session.jwt();
+        return obj.user && obj.user.jwt();
       },
       user(obj) {
-        return obj.session && obj.session.user_id && Connectors.getUser(obj.session.user_id);
+        return obj.user && obj.user.id && Connectors.getUser(obj.user.id);
       },
     },
   };

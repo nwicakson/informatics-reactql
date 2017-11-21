@@ -1,0 +1,8 @@
+query getLinks {
+  links {
+    link_id
+    link_url
+    link_name
+    link_description
+  }
+}

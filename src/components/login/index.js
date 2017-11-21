@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
-import { Form, Icon, Input, Button } from 'antd';
+import { Form, Icon, Input, Button, Popover } from 'antd';
 import { graphql } from 'react-apollo';
 import sessionQuery from 'src/graphql/gql/queries/session.gql';
 import loginMutation from 'src/graphql/gql/mutations/login.gql';
 import css from './login.scss';
 
-const FormItem = Form.Item;
 function hasErrors(fieldsError) {
   return Object.keys(fieldsError).some(field => fieldsError[field]);
 }
@@ -73,13 +72,14 @@ class LoginForm extends Component {
   }
 
   render() {
+    const FormItem = Form.Item;
     const { getFieldDecorator, getFieldsError, getFieldError, isFieldTouched } = this.props.form;
 
     // Only show error after a field is touched.
     const userNameError = isFieldTouched('userName') && getFieldError('userName');
     const passwordError = isFieldTouched('password') && getFieldError('password');
     return (
-      <Form onSubmit={this.handleSubmit}>
+      <Form onSubmit={this.handleSubmit} style={{ padding: '5px' }}>
         <FormItem
           validateStatus={userNameError ? 'error' : ''}
           help={userNameError || ''}>
@@ -107,23 +107,20 @@ class LoginForm extends Component {
               onChange={this.handleChange} />,
           )}
         </FormItem>
-        <FormItem>
-          <Button
-            type="primary"
-            className={css.formSubmitButton}
-            htmlType="submit"
-            disabled={hasErrors(getFieldsError())}>
-              Log In
-          </Button>
-        </FormItem>
+        <Button
+          type="primary"
+          className={css.formSubmitButton}
+          htmlType="submit"
+          disabled={hasErrors(getFieldsError())}>
+            Log In
+        </Button>
       </Form>
 
     );
   }
 }
 
-const Login = Form.create()(LoginForm);
-const LoginWithQuery = graphql(loginMutation, {
+const LoginFormWithQuery = graphql(loginMutation, {
   options: {
     update(proxy, { data: { login } }) {
       const data = proxy.readQuery({
@@ -133,5 +130,12 @@ const LoginWithQuery = graphql(loginMutation, {
       proxy.writeQuery({ query: sessionQuery, data });
     },
   },
-})(Login);
-export default LoginWithQuery;
+})(Form.create()(LoginForm));
+
+export default () => (
+  <div>
+    <Popover content={<LoginFormWithQuery />} placement="bottomRight" trigger="click">
+      <Button type="primary" size="large"><Icon type="login" /> Login</Button>
+    </Popover>
+  </div>
+);

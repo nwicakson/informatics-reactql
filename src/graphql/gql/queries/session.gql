@@ -1,4 +1,4 @@
-{
+query getSession {
   session {
     ok
     jwt
@@ -11,5 +11,6 @@
       user_nicename
       user_email
     }
+    user_capabilities
   }
 }

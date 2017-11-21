@@ -2,10 +2,10 @@ import Sequelize from 'sequelize';
 import { _ as lodash } from 'lodash';
 import PHPUnserialize from 'php-unserialize';
 // Hashing/JWT
-import { encodeJWT, decodeJWT } from 'src/lib/hash';
-import hasher from 'wordpress-hash-node';
+import { checkPassword, encodeJWT, decodeJWT } from 'src/lib/hash';
 // Error handler
 import FormError from 'src/lib/error';
+/* eslint-disable camelcase */
 
 export default class Database {
   constructor(settings) {
@@ -30,6 +30,7 @@ export default class Database {
           timestamps: false,
           freezeTableName: true,
           operatorsAliases: false,
+          tableAliases: false,
         },
       },
     );
@@ -43,7 +44,7 @@ export default class Database {
 
     return {
       Post: Conn.define(`${prefix}posts`, {
-        id: { type: Sequelize.INTEGER, primaryKey: true },
+        id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
         post_author: { type: Sequelize.INTEGER },
         post_title: { type: Sequelize.STRING },
         post_content: { type: Sequelize.STRING },
@@ -53,15 +54,22 @@ export default class Database {
         post_name: { type: Sequelize.STRING },
         post_parent: { type: Sequelize.INTEGER },
         menu_order: { type: Sequelize.INTEGER },
+        post_date: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+        post_date_gmt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+        post_modified: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+        post_modified_gmt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+        comment_status: { type: Sequelize.STRING, defaultValue: 'open' },
+        ping_status: { type: Sequelize.STRING, defaultValue: 'open' },
+        guid: { type: Sequelize.STRING },
       }, { underscored: true }),
       Postmeta: Conn.define(`${prefix}postmeta`, {
-        meta_id: { type: Sequelize.INTEGER, primaryKey: true, field: 'meta_id' },
+        meta_id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
         post_id: { type: Sequelize.INTEGER },
         meta_key: { type: Sequelize.STRING },
         meta_value: { type: Sequelize.INTEGER },
       }, { underscored: true }),
       User: Conn.define(`${prefix}users`, {
-        id: { type: Sequelize.INTEGER, primaryKey: true },
+        id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
         user_login: { type: Sequelize.STRING },
         user_pass: { type: Sequelize.TEXT, allowNull: true },
         user_nicename: { type: Sequelize.STRING },
@@ -70,13 +78,13 @@ export default class Database {
         display_name: { type: Sequelize.STRING },
       }, { underscored: true }),
       Usermeta: Conn.define(`${prefix}usermeta`, {
-        umeta_id: { type: Sequelize.INTEGER, primaryKey: true },
+        umeta_id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
         user_id: { type: Sequelize.INTEGER },
         meta_key: { type: Sequelize.STRING },
         meta_value: { type: Sequelize.STRING },
       }),
       Terms: Conn.define(`${prefix}terms`, {
-        term_id: { type: Sequelize.INTEGER, primaryKey: true },
+        term_id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
         name: { type: Sequelize.STRING },
         slug: { type: Sequelize.STRING },
         term_group: { type: Sequelize.INTEGER },
@@ -87,34 +95,25 @@ export default class Database {
         term_order: { type: Sequelize.INTEGER },
       }, { underscored: true }),
       TermTaxonomy: Conn.define(`${prefix}term_taxonomy`, {
-        term_taxonomy_id: { type: Sequelize.INTEGER, primaryKey: true },
+        term_taxonomy_id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
         term_id: { type: Sequelize.INTEGER },
         taxonomy: { type: Sequelize.STRING },
         parent: { type: Sequelize.INTEGER },
         count: { type: Sequelize.INTEGER },
       }, { underscored: true }),
-      Session: Conn.define('sessions', {
-        id: { type: Sequelize.UUID, primaryKey: true, defaultValue: Sequelize.UUIDV4 },
-        user_id: { type: Sequelize.INTEGER },
-        expires_at: { type: Sequelize.DATE, allowNull: true },
-      }, {
-        hooks: {
-          beforeValidate(inst) {
-            // Set expiration to be 30 days from now
-            const now = new Date();
-            now.setDate(now.getDate() + 30);
-            /* eslint-disable no-param-reassign */
-            inst.expires_at = now;
-          },
-        },
+      Links: Conn.define(`${prefix}links`, {
+        link_id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
+        link_url: { type: Sequelize.STRING },
+        link_name: { type: Sequelize.STRING },
+        link_description: { type: Sequelize.STRING },
       }, { underscored: true }),
     };
   }
 
   getConnectors() {
-    const { amazonS3, uploads, defaultThumbnail, staffProperties } = this.settings.publicSettings;
-    const { Post, Postmeta, User, Usermeta, Terms, TermRelationships, Session } = this.getModels();
-    const prefix = this.settings.privateSettings.wpPrefix;
+    const { Post, Postmeta, User, Usermeta, Terms, TermRelationships, TermTaxonomy, Links } = this.getModels();
+    const { amazonS3, uploads, defaultThumbnail, staffProperties, baseUrl } = this.settings.publicSettings;
+    const { wpPrefix: prefix } = this.settings.privateSettings;
 
     Terms.hasMany(TermRelationships, { foreignKey: 'term_taxonomy_id' });
     TermRelationships.belongsTo(Terms, { foreignKey: 'term_taxonomy_id' });
@@ -122,6 +121,7 @@ export default class Database {
     TermRelationships.hasMany(Postmeta, { foreignKey: 'post_id' });
     Postmeta.belongsTo(TermRelationships, { foreignKey: 'post_id' });
 
+    Post.hasMany(TermRelationships, { foreignKey: 'object_id' });
     TermRelationships.belongsTo(Post, { foreignKey: 'object_id' });
 
     Post.hasMany(Postmeta, { foreignKey: 'post_id' });
@@ -130,47 +130,48 @@ export default class Database {
     User.hasMany(Usermeta, { foreignKey: 'user_id' });
     Usermeta.belongsTo(User, { foreignKey: 'user_id' });
 
-    User.hasMany(Session, { foreignKey: 'user_id' });
-    Session.belongsTo(User, { foreignKey: 'user_id' });
+    Terms.hasOne(TermTaxonomy, { foreignKey: 'term_id' });
 
-    this.connection.sync();
-
-    Session.prototype.jwt = function jwt() {
+    User.prototype.jwt = function jwt() {
       return encodeJWT({
         id: this.id,
       });
     };
 
-    // Create a new session.  Accepts a loaded user instance, and returns a
-    // new session object
-    async function createSession(user) {
-      return Session.create({
-        user_id: user.id,
-      });
-    }
-
     // Retrieve a session based on the JWT token.
-    async function getSessionOnJWT(token) {
+    async function getUserOnJWT(token) {
       const e = new FormError();
-      let session;
-
+      let user;
+      let user_capabilities;
       try {
         // Attempt to decode the JWT token
         const data = decodeJWT(token);
+
         // We should have an ID attribute
         if (!data.id) throw new Error();
 
         // Check that we've got a valid session
-        session = await Session.findById(data.id);
-        if (!session) throw new Error();
+        user = await User.findById(data.id);
+        if (!user) throw new Error();
+
+        const { meta_value } = await Usermeta.findOne({
+          attributes: ['meta_value'],
+          where: {
+            user_id: user.id,
+            meta_key: `${prefix}capabilities`,
+          },
+        });
+        if (!meta_value) throw new Error();
+        user_capabilities = meta_value.split('"')[1];
       } catch (_) {
         e.set('session', 'Invalid session ID');
       }
-
-      // Throw if we have errors
       e.throwIf();
 
-      return session;
+      return {
+        user,
+        user_capabilities,
+      };
     }
 
     // Login a user. Returns the inserted `session` instance on success, or
@@ -194,9 +195,9 @@ export default class Database {
         attributes: ['umeta_id'],
         where: {
           user_id: user.id,
-          meta_key: 'wp_capabilities',
+          meta_key: `${prefix}capabilities`,
           meta_value: {
-            $like: '%subscriber%',
+            $like: '%contributor%',
           },
         },
       });
@@ -208,33 +209,22 @@ export default class Database {
       e.throwIf();
 
       // Check that the passwords match
-      if (!await hasher.CheckPassword(data.password, user.user_pass)) {
+      if (!await checkPassword(data.password, user.user_pass)) {
         e.set('password', 'Your password is incorrect.');
       }
 
       e.throwIf();
 
-      const session = await createSession(user);
-
-      // Create the new session
-      return session;
+      return user;
     }
 
     return {
-      async login(args, ctx) {
+      async login(args) {
         try {
-          const session = await login(args);
-          // If getting the JWT didn't throw, then we know we have a valid
-          // JWT -- store it on a cookie so that we can re-use it for future
-          // requests to the server
-          ctx.cookies.set('reactQLJWT', session.jwt(), {
-            expires: session.expires_at,
-          });
-
-          // Return the session record from the DB
+          const user = await login(args);
           return {
             ok: true,
-            session,
+            user,
           };
         } catch (e) {
           return {
@@ -248,11 +238,12 @@ export default class Database {
         try {
           // Attempt to retrieve the JWT based on the token that *may* be
           // available on the request context's `state`
-          const session = await getSessionOnJWT(ctx.state.jwt);
+          const { user, user_capabilities } = await getUserOnJWT(ctx.state.jwt);
           // Return the session record from the DB
           return {
             ok: true,
-            session,
+            user,
+            user_capabilities,
           };
         } catch (e) {
           return {
@@ -260,6 +251,179 @@ export default class Database {
             errors: e,
           };
         }
+      },
+
+      async createPost(args, ctx) {
+        const { user } = await getUserOnJWT(ctx.state.jwt);
+        const { post_title, post_content, post_excerpt, post_status, categories } = args;
+        const now = new Date();
+        const newPost = await Post.create({
+          post_author: user.id,
+          post_content,
+          post_title,
+          post_excerpt,
+          post_status,
+        });
+        await Post.update({
+          guid: `${baseUrl}/?p=${newPost.id}`,
+        }, {
+          where: {
+            id: newPost.id,
+          },
+        });
+        await categories.map(category => {
+          Terms.findOne({
+            where: {
+              name: category,
+            },
+          }).then(term => (
+            TermRelationships.create({
+              object_id: newPost.id,
+              term_taxonomy_id: term.term_id,
+            })
+          ));
+          return null;
+        });
+        await Post.create({
+          post_author: user.id,
+          post_content,
+          post_title,
+          post_excerpt,
+          post_status: 'inherit',
+          post_name: `${newPost.id}-revision-v1`,
+          post_type: 'revision',
+          comment_status: 'closed',
+          ping_status: 'closed',
+          post_parent: newPost.id,
+          guid: `${baseUrl}/${now.getFullYear()}/${now.getMonth()}/${(`0${now.getDate()}`).slice(-2)}/${newPost.id}-revision-v1/`,
+        });
+        await Postmeta.create({
+          post_id: newPost.id,
+          meta_key: '_edit_lock',
+          meta_value: `${Math.floor(now.getTime() / 1000)}:${user.id}`,
+        });
+        await Postmeta.create({
+          post_id: newPost.id,
+          meta_key: '_edit_last',
+          meta_value: user.id,
+        });
+        return newPost;
+      },
+
+      async editPost(args, ctx) {
+        const { user } = await getUserOnJWT(ctx.state.jwt);
+        const { id, post_title, post_content, post_excerpt, post_status, categories } = args;
+        if (post_status && post_status === 'publish') return null;
+        const now = new Date();
+        await Post.update({
+          post_title,
+          post_content,
+          post_excerpt,
+          post_status,
+          post_date: now,
+          post_date_gmt: now,
+          post_modified: now,
+          post_modified_gmt: now,
+        }, {
+          where: {
+            id,
+            post_author: user.id,
+          },
+        });
+        await Post.create({
+          post_author: user.id,
+          post_content,
+          post_title,
+          post_excerpt,
+          post_status: 'inherit',
+          post_name: `${id}-revision-v1`,
+          post_type: 'revision',
+          comment_status: 'closed',
+          ping_status: 'closed',
+          post_parent: id,
+          guid: `${baseUrl}/${now.getFullYear()}/${now.getMonth()}/${(`0${now.getDate()}`).slice(-2)}/${id}-revision-v1/`,
+        });
+        await Postmeta.update({
+          meta_value: `${Math.floor(now.getTime() / 1000)}:${user.id}`,
+        }, {
+          where: {
+            post_id: id,
+            meta_key: '_edit_lock',
+          },
+        });
+        await Postmeta.update({
+          meta_value: user.id,
+        }, {
+          where: {
+            post_id: id,
+            meta_key: '_edit_last',
+          },
+        });
+        const terms = await Terms.findAll({
+          include: [{
+            model: TermRelationships,
+            where: {
+              object_id: id,
+            },
+          }],
+        });
+        terms.map(term => {
+          const index = categories.indexOf(term.name);
+          if (index > -1) categories.splice(index, 1);
+          else {
+            TermRelationships.destroy({
+              where: {
+                object_id: id,
+                term_taxonomy_id: term.term_id,
+              },
+            });
+          }
+        });
+        categories.map(category => {
+          Terms.findOne({
+            where: {
+              name: category,
+            },
+          }).then(term => (
+            TermRelationships.create({
+              object_id: id,
+              term_taxonomy_id: term.term_id,
+            })
+          ));
+          return null;
+        });
+        return Post.findById(id);
+      },
+
+      async deletePost(id, ctx) {
+        const { user } = await getUserOnJWT(ctx.state.jwt);
+        Post.destroy({
+          where: {
+            post_author: user.id,
+            $or: [
+              { id },
+              {
+                post_name: { $like: `${id}-revision%` },
+                post_status: 'inherit',
+              },
+            ],
+          },
+        });
+        Postmeta.destroy({
+          where: {
+            post_id: id,
+          },
+        });
+        TermRelationships.destroy({
+          where: {
+            object_id: id,
+          },
+        });
+        return id;
+      },
+
+      getLinks() {
+        return Links.findAll();
       },
 
       getStaffs() {
@@ -285,7 +449,7 @@ export default class Database {
       getDefaultThumbnail() {
         return Postmeta.findOne({
           where: {
-            meta_key: '_wp_attached_file',
+            meta_key: `_${prefix}attached_file`,
             meta_value: {
               $like: `%${defaultThumbnail}%`,
             },
@@ -302,6 +466,99 @@ export default class Database {
         });
       },
 
+      async getMyPosts({ statuses, categories, limit, skip }, ctx) {
+        const { user } = await getUserOnJWT(ctx.state.jwt);
+        let termsId;
+        if (categories.length > 0) {
+          termsId = await Terms.findAll({
+            where: {
+              name: {
+                $in: categories,
+              },
+            },
+          }).then(terms => lodash.map(terms, 'term_id'));
+        } else {
+          termsId = await TermTaxonomy.findAll({
+            where: {
+              taxonomy: 'category',
+            },
+          }).then(terms => lodash.map(terms, 'term.id'));
+        }
+        return Post.findAll({
+          include: {
+            model: TermRelationships,
+            where: {
+              term_taxonomy_id: {
+                $in: termsId,
+              },
+            },
+          },
+          where: {
+            post_author: user.id,
+            post_type: 'post',
+            post_status: {
+              $in: statuses,
+            },
+          },
+          limit,
+          offset: skip,
+          order: [
+            ['post_date', 'DESC'],
+          ],
+        });
+      },
+
+      async getMyTotalPosts({ statuses, categories }, ctx) {
+        const { user } = await getUserOnJWT(ctx.state.jwt);
+        let termsId;
+        if (categories.length > 0) {
+          termsId = await Terms.findAll({
+            where: {
+              name: {
+                $in: categories,
+              },
+            },
+          }).then(terms => lodash.map(terms, 'term_id'));
+        } else {
+          termsId = await TermTaxonomy.findAll({
+            where: {
+              taxonomy: 'category',
+            },
+          }).then(terms => lodash.map(terms, 'term.id'));
+        }
+        return Post.count({
+          include: {
+            model: TermRelationships,
+            where: {
+              term_taxonomy_id: {
+                $in: termsId,
+              },
+            },
+          },
+          where: {
+            post_author: user.id,
+            post_type: 'post',
+            post_status: {
+              $in: statuses,
+            },
+          },
+        });
+      },
+
+      async getMyPost(id, ctx) {
+        const { user } = await getUserOnJWT(ctx.state.jwt);
+        return Post.findOne({
+          where: {
+            id,
+            post_type: 'post',
+            post_author: user.id,
+            post_status: {
+              $not: 'publish',
+            },
+          },
+        });
+      },
+
       getPosts({ post_type, limit = 10, skip = 0 }) {
         return Post.findAll({
           where: {
@@ -310,30 +567,90 @@ export default class Database {
           },
           limit,
           offset: skip,
+          order: [
+            ['post_date', 'DESC'],
+          ],
+        });
+      },
+
+      getTotalPosts({ post_type }) {
+        return Post.count({
+          where: {
+            post_type,
+            post_status: 'publish',
+          },
         });
       },
 
       getPostsInCategory(termId, { post_type, limit = 10, skip = 0 }) {
         return TermRelationships.findAll({
-          attributes: [],
-          include: [{
+          include: {
             model: Post,
             where: {
               post_type,
               post_status: 'publish',
             },
-          }],
+          },
           where: {
             term_taxonomy_id: termId,
           },
           limit,
           offset: skip,
-        }).then(posts => lodash.map(posts, post => post[`${prefix}post`]));
+          order: [
+            [Post, 'post_date', 'DESC'],
+          ],
+        }).then(posts => posts.map(post => post[`${prefix}post`]));
+      },
+
+      getTotalPostsInCategory(termId, { post_type }) {
+        return TermRelationships.count({
+          include: {
+            model: Post,
+            where: {
+              post_type,
+              post_status: 'publish',
+            },
+          },
+          where: {
+            term_taxonomy_id: termId,
+          },
+        });
+      },
+
+      async getCategoriesByPostId(id) {
+        const categories = [];
+        const categoriesId = await TermRelationships.findAll({
+          where: {
+            object_id: id,
+          },
+        });
+        if (categoriesId) {
+          categoriesId.map(categoryId => (
+            categories.push(Terms.findById(categoryId.term_taxonomy_id).then(category => category.dataValues.name))
+          ));
+          return categories;
+        }
+        return null;
+      },
+
+      getCategories() {
+        return Terms.findAll({
+          include: {
+            model: TermTaxonomy,
+            where: {
+              taxonomy: 'category',
+            },
+          },
+        }).then(categories => lodash.map(categories, 'name'));
       },
 
       getCategoryById(termId) {
+        return Terms.findById(termId);
+      },
+
+      getCategory(slug) {
         return Terms.findOne({
-          where: { termId },
+          where: { slug },
         });
       },
 
@@ -354,9 +671,9 @@ export default class Database {
               },
             }).then(childPosts => {
               if (childPosts.length > 0) {
-                lodash.map(childPosts, childPost => {
-                  post.dataValues.children.push({ id: Number(childPost.dataValues.id) });
-                });
+                childPosts.map(childPost =>
+                  post.dataValues.children.push({ id: Number(childPost.dataValues.id) }),
+                );
               }
               return post;
             });
@@ -466,9 +783,9 @@ export default class Database {
               items: null,
             };
             menu.id = res.term_id;
-            const relationship = res.wp_term_relationships;
-            const posts = lodash.map(lodash.map(lodash.map(relationship, 'wp_post'), 'dataValues'), post => {
-              const postmeta = lodash.map(post.wp_postmeta, 'dataValues');
+            const relationship = res[`${prefix}term_relationships`];
+            const posts = lodash.map(lodash.map(lodash.map(relationship, `${prefix}post`), 'dataValues'), post => {
+              const postmeta = lodash.map(post[`${prefix}postmeta`], 'dataValues');
               const parentMenuId = lodash.map(lodash.filter(postmeta, meta => meta.meta_key === '_menu_item_menu_item_parent'), 'meta_value');
               post.post_parent = parseInt(parentMenuId[0]);
               return post;
@@ -481,10 +798,12 @@ export default class Database {
 
             lodash.map(lodash.sortBy(posts, 'post_parent'), post => {
               const navItem = {};
-              const postmeta = lodash.map(post.wp_postmeta, 'dataValues');
-              const isParent = lodash.includes(parentIds, post.id);
+              const postmeta = lodash.map(post[`${prefix}postmeta`], 'dataValues');
+              const isParent = parentIds.includes(post.id);
               let objectType = lodash.map(lodash.filter(postmeta, meta => meta.meta_key === '_menu_item_object'), 'meta_value');
               objectType = objectType[0];
+              let url = lodash.map(lodash.filter(postmeta, meta => meta.meta_key === '_menu_item_url'), 'meta_value');
+              url = url[0];
               const linkedId = Number(lodash.map(lodash.filter(postmeta, meta => meta.meta_key === '_menu_item_object_id'), 'meta_value'));
 
               if (isParent) {
@@ -493,6 +812,7 @@ export default class Database {
                 navItem.order = post.menu_order;
                 navItem.linkedId = linkedId;
                 navItem.object_type = objectType;
+                navItem.url = url;
                 navItem.children = [];
                 navItems.push(navItem);
               } else {
@@ -502,10 +822,17 @@ export default class Database {
                 ));
 
                 if (existing.length) {
-                  existing[0].children.push({ id: post.id, linkedId });
+                  const navItemChild = {};
+                  navItemChild.id = post.id;
+                  navItemChild.post_title = post.post_title;
+                  navItemChild.order = post.menu_order;
+                  navItemChild.linkedId = linkedId;
+                  navItemChild.object_type = objectType;
+                  navItemChild.url = url;
+                  navItemChild.children = [];
+                  existing[0].children.push(navItemChild);
                 }
               }
-
               menu.items = navItems;
             });
             return menu;

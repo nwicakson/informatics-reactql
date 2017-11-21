@@ -1,69 +1,41 @@
-import React, { Component } from 'react';
-import { gql, graphql } from 'react-apollo';
-import { Row, Col, AutoComplete, Card } from 'antd';
-import { Link } from 'react-router-dom';
-import css from './articles.scss';
+import React from 'react';
+import { Helmet } from 'react-helmet';
+import { graphql } from 'react-apollo';
+import postsQuery from 'src/graphql/gql/queries/posts.gql';
+import ListCards from 'src/components/listCards';
 
-const ArticlesQuery = gql`
-  query getPosts($postType: String, $limit: Int, $skip: Int){
-    posts(post_type: $postType, limit: $limit, skip: $skip ){
-      id
-      post_title
-      post_name
-      post_excerpt
-      thumbnail
-    }
-    settings{
-      defaultThumbnail
-    }
-  }
-`;
+const Articles = props => {
+  const { loading } = props.data;
+  if (loading) return <div />;
+  const {
+    refetch,
+    posts,
+    settings: { defaultThumbnail },
+    total_posts: totalPosts,
+  } = props.data;
+  return (
+    <div>
+      <Helmet>
+        <title>Articles</title>
+        <meta property="og:title" content="Articles" />
+        <meta property="og:url" content={window.location.pathname} />
+        <meta property="og:description" content="List of articles that has been published" />
+      </Helmet>
+      <ListCards
+        posts={posts}
+        defaultThumbnail={defaultThumbnail}
+        totalPosts={totalPosts}
+        refetch={refetch} />
+    </div>
+  );
+};
 
-@graphql(ArticlesQuery, {
+export default graphql(postsQuery, {
   options: () => ({
     variables: {
       postType: 'post',
-      limit: 10,
+      limit: 12,
       skip: 0,
     },
   }),
-})
-export default class Articles extends Component {
-  render() {
-    const { data } = this.props;
-    if (data.loading) { return (<div />); }
-    const dataSources = data.posts.post_title;
-    return (
-      <div>
-        <Row type="flex" justify="center">
-          <AutoComplete
-            style={{ width: 200 }}
-            dataSource={dataSources}
-            placeholder="search articles"
-            filterOption={(inputValue, option) => option.props.children.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1} />
-        </Row>
-
-        <Row gutter={8}>
-          {data.posts.map(post => {
-            const { post_title: title, post_name: name, thumbnail, post_excerpt: postExcerpt } = post;
-            return (
-              <Col xs={24} sm={12} md={8} lg={6} xl={6}>
-                <Card style={{ margin: 10 }} bodyStyle={{ padding: 0 }}>
-                  <Link to={`post/${encodeURIComponent(name)}`}>
-                    <div className={css.customImage}>
-                      <img alt="example" width="100%" src={thumbnail || data.settings.defaultThumbnail} />
-                    </div>
-                    <div className={css.customCard}>
-                      <h3>{title}</h3>
-                      <p>{postExcerpt}</p>
-                    </div>
-                  </Link>
-                </Card>
-              </Col>
-            );
-          })}
-        </Row>
-      </div>
-    );
-  }
-}
+})(Articles);

@@ -1,0 +1,17 @@
+query getPosts($postType: String, $limit: Int, $skip: Int) {
+  posts(post_type: $postType, limit: $limit, skip: $skip ) {
+    id
+    post_title
+    post_name
+    post_excerpt
+    thumbnail
+    author {
+      user_nicename
+      display_name
+    }
+  }
+  total_posts(post_type: $postType)
+  settings {
+    defaultThumbnail
+  }
+}

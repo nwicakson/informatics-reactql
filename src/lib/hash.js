@@ -32,10 +32,5 @@ export function decodeJWT(token) {
 }
 
 export async function checkPassword(plainTextPassword, hash) {
-  return new Promise((ok, reject) => (
-    hasher.CheckPassword(plainTextPassword, hash, (e, doesMatch) => {
-      if (e) return reject(e);
-      return ok(doesMatch);
-    })
-  ));
+  return hasher.CheckPassword(plainTextPassword, hash);
 }

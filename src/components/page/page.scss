@@ -1,0 +1,46 @@
+.card {
+  a {
+    color: dodgerblue;
+    border-bottom: 1px solid currentColor;
+    line-height: 0;
+    transition: color 150ms ease-out;
+
+    &:hover{
+      color: deepskyblue;
+    }
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  figure {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    img{
+      margin: 0;
+    }
+  }
+
+  div:first-of-type {
+    height: 100%;
+  }
+}
+
+.share {
+  div {
+    display: inline-block;
+    margin-left: 5px;
+  }
+}
+
+.shareButton {
+  cursor: pointer;
+}
+
+.shareButton:hover:not(:active) {
+  opacity: 0.75;
+}

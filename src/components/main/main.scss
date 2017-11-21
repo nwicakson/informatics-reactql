@@ -1,0 +1,89 @@
+/* Define some variables we might want to use elsewhere */
+:root {
+  --fg: #0b2296;
+}
+
+.header {
+  padding: 0px !important;
+}
+
+.trigger {
+  float: left !important;
+  font-size: 18px !important;
+  line-height: inherit !important;
+  padding: 0 16px !important;
+  cursor: pointer !important;
+  transition: color .3s !important;
+  color: #fff !important;
+
+  &:hover {
+    color: #108ee9 !important;
+  }
+}
+
+.iconHome {
+  float: left !important;
+}
+
+.navLeft {
+  float: left;
+  padding: 0 16px 0px 16px;
+  height: 64px;
+  > div {
+    display: inline-block;
+    margin-right: 16px;
+  }
+  a {
+    float: left;
+    line-height: inherit;
+    height: inherit;
+  }
+}
+
+.navRight {
+  float: right;
+  padding: 0 16px 0px 16px;
+  > div {
+    display: inline-block;
+    margin-left: 16px;
+  }
+}
+
+.menuHeader {
+   float: left !important;
+   line-height: inherit !important;
+   height: inherit !important;
+   margin-left: 16px;
+   border-bottom: none !important;
+}
+
+.sider {
+  min-height: 100vh;
+  max-height: 100%;
+}
+
+.menuSider {
+  width: 100% !important;
+  height: inherit !important;
+}
+
+.sideContent {
+  width: 15%;
+  max-width: 15%;
+  min-width: 150px;
+  margin: 24px 16px;
+}
+
+.middleContent {
+  width: 70%;
+  max-width: 85%;
+  height: 100%;
+  margin: 24px 16px;
+  padding: 24px;
+  background: #fff;
+  h1, h2, h3, h4, h5 {
+    margin: 0 0 0.5em;
+    line-height: 1.2;
+    font-weight: 700;
+  }
+}

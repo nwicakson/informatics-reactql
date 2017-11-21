@@ -1,0 +1,10 @@
+mutation editPost($id: Int, $post_title: String, $post_content: String, $post_excerpt: String, $post_status: String, $categories: [String]) {
+  edit_post(id: $id, post_title: $post_title, post_content: $post_content, post_excerpt: $post_excerpt, post_status: $post_status, categories: $categories) {
+    id
+    post_title
+    post_content
+    post_excerpt
+    post_status
+    categories
+  }
+}

@@ -1,0 +1,18 @@
+query getPost($post: String){
+  post(name:$post){
+    id
+    post_type
+    post_title
+    post_excerpt
+    post_content
+    thumbnail
+    author {
+      user_nicename
+      display_name
+    }
+  },
+  settings {
+    uploads
+    amazonS3
+  }
+}

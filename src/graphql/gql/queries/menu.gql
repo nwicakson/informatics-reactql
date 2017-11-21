@@ -1,0 +1,30 @@
+query getMenu($menu: String) {
+  menu(name: $menu) {
+    items {
+      order
+      object_type
+      navitem {
+        post_title
+        post_name
+      },
+      navitemcategory {
+        name
+        slug
+      }
+      url
+      children {
+      order
+        object_type
+        navitem {
+          post_title
+          post_name
+          post_parent
+        }
+        navitemcategory {
+        	name
+        	slug
+        }
+      }
+    }
+  }
+}

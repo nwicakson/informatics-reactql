@@ -2,17 +2,13 @@
 you can import locally, and they wind up in the resulting bundle */
 @import url('https://fonts.googleapis.com/css?family=Gentium+Basic');
 @import '~antd/dist/antd.css';
-@import './components/styles/typography.scss';
-@@import './components/styles/hljs.scss';
+@import '~react-quill/dist/quill.snow.css';
+/*@import './components/styles/typography.scss';*/
+@import './components/styles/hljs.scss';
 
 html {
   padding: 0;
   border: 0;
   font-family: 'Gentium Basic', serif;
   font-size: 16px;
-
-  /* We can nest rules, thanks to cssnext */
-  li {
-    font-size: 2rem;
-  }
 }
