@@ -11,21 +11,21 @@ const Articles = props => {
     refetch,
     posts,
     settings: { defaultThumbnail },
-    total_posts: totalPosts,
+    total_posts: totalPosts, variables,
   } = props.data;
   return (
     <div>
       <Helmet>
         <title>Articles</title>
         <meta property="og:title" content="Articles" />
-        <meta property="og:url" content={window.location.pathname} />
         <meta property="og:description" content="List of articles that has been published" />
       </Helmet>
       <ListCards
         posts={posts}
         defaultThumbnail={defaultThumbnail}
         totalPosts={totalPosts}
-        refetch={refetch} />
+        refetch={refetch}
+        variables={variables} />
     </div>
   );
 };

@@ -1,0 +1,15 @@
+.singlePost {
+  p {
+    margin-bottom: 20px;
+  }
+}
+
+:global .alignleft {
+  float: left;
+  margin: 0 10px 10px 0;
+}
+
+:global .alignright {
+  float: right;
+  margin: 0 0 10px 10px;
+}

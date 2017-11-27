@@ -1,6 +1,7 @@
 query getPostsWithCategory($slug: String, $postType: String, $limit: Int, $skip: Int) {
   category(slug: $slug) {
     posts(post_type: $postType, limit: $limit, skip: $skip) {
+      id
       post_title
       post_name
       post_excerpt

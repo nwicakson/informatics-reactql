@@ -2,11 +2,10 @@ import React, { Component } from 'react';
 import { map } from 'lodash';
 import hljs from 'highlightjs';
 import Shortcodes from './shortcodes';
+import css from './singlePost.scss';
 
 export default class SinglePost extends Component {
   componentDidMount() {
-    const content = this._content;
-
     // render embed shortcodes
     const shortcodes = document.getElementsByClassName('post__shortcode');
     map(shortcodes, shortcode => Shortcodes.renderEmbed(shortcode));
@@ -18,13 +17,12 @@ export default class SinglePost extends Component {
     }
   }
 
-  _parseContent() {
+  parseContent() {
     const { content } = this.props;
     const trimmed = content.trim();
     const splitContent = trimmed.split('\n');
-    const voidTags = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'code', 'pre', 'img'];
+    const voidTags = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'code', 'pre', 'div'];
     const shortcodes = ['caption', 'embed', 'gist'];
-    let tagIsClosed = true;
 
     map(splitContent, (line, index) => {
       let newline = line;
@@ -38,7 +36,6 @@ export default class SinglePost extends Component {
         // wrap lines without voidTags in paragraph tags
         let tag = line.match(/^<\w+/g);
         tag = tag ? tag[0].slice(1) : '';
-        tagIsClosed = line.match(/<\/\w*>$/g);
         if (voidTags.indexOf(tag) === -1 && line.length > 1) {
           newline = `<p>${line}</p>`;
         }
@@ -53,8 +50,6 @@ export default class SinglePost extends Component {
   }
 
   render() {
-    return (
-      <div ref={c => this._content = c} dangerouslySetInnerHTML={this._parseContent()} />
-    );
+    return <div className={css.singlePost} dangerouslySetInnerHTML={this.parseContent()} />;
   }
 }

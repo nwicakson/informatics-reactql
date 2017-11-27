@@ -68,6 +68,20 @@ export default function Resolvers(Connectors, publicSettings) {
         return Connectors.deletePost(id, ctx);
       },
     },
+    Date: {
+      __parseValue(value) {
+        return new Date(value); // value from the client
+      },
+      __serialize(value) {
+        return value.getTime(); // value sent to the client
+      },
+      __parseLiteral(ast) {
+        if (ast.kind === Kind.INT) {
+          return parseInt(ast.value, 10); // ast value is always in string format
+        }
+        return null;
+      },
+    },
     Category: {
       posts(category, args) {
         return Connectors.getPostsInCategory(category.term_id, args);
@@ -79,6 +93,9 @@ export default function Resolvers(Connectors, publicSettings) {
     Post: {
       async categories(post) {
         return Connectors.getCategoriesByPostId(post.id);
+      },
+      post_excerpt(post) {
+        return Connectors.getExcerpt(post);
       },
       post_meta(post, keys) {
         return Connectors.getPostmeta(post.id, keys);

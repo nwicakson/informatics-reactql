@@ -1,0 +1,6 @@
+query getHotNews($postType: String, $limit: Int, $skip: Int) {
+  posts(post_type: $postType, limit: $limit, skip: $skip ) {
+    post_title
+    post_name
+  }
+}

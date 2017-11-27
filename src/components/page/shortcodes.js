@@ -47,7 +47,7 @@ function RenderGistShortCode(line) {
 }
 
 function RenderGistEmbed(shortcode) {
-  const source = shortcode.dataset.source;
+  const { source } = shortcode.dataset;
   const gistFrame = document.createElement('iframe');
   gistFrame.setAttribute('width', '100%');
   gistFrame.id = 'gist-frame';
@@ -86,7 +86,7 @@ function RenderGistEmbed(shortcode) {
 }
 
 function RenderEmbed(shortcode) {
-  const type = shortcode.dataset.type;
+  const { type } = shortcode.dataset;
   switch (type) {
     case 'gist':
       return RenderGistEmbed(shortcode);

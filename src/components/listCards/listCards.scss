@@ -7,9 +7,24 @@
   //background-size: cover;
 }
 
-.cardContent {
+.cardDescription {
   padding: 1.4em;
   max-height: 150px;
+}
+
+.cardTitle {
+  height: 1.2em;
+  h3 {
+    line-height: 1.2em;
+    margin: 0px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.cardContent {
+  height: 3.6em;
   /* styles for '...' */
   p {
     /* hide text if it more than N lines  */
@@ -51,5 +66,4 @@
     /* bg color = bg color under block */
     background: white;
   }
-
 }

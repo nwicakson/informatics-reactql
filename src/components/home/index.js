@@ -16,11 +16,13 @@ const Home = props => {
         const { post_title: title, post_name: name, thumbnail, post_excerpt: postExcerpt } = post;
         const image = thumbnail || data.settings.defaultThumbnail;
         return (
-          <div className={css.carouselBackground} style={{ backgroundImage: `url(${image})` }}>
-            <Link to={`${encodeURIComponent(name)}`}><div className={css.carouselImage} /></Link>
-            <div className={css.carouselContent}>
+          <div className={css.carouselImage} style={{ backgroundImage: `url(${image})` }}>
+            <Link to={`/${encodeURIComponent(name)}`}><div className={css.carouselLink} /></Link>
+            <div className={css.carouselDescription}>
               <h2>{title}</h2>
-              <p>{postExcerpt}</p>
+              <div className={css.carouselContent}>
+                <p>{postExcerpt}</p>
+              </div>
             </div>
           </div>
         );

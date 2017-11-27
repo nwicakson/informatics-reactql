@@ -14,7 +14,7 @@ class MyPosts extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      categories: props.categories || [],
+      categories: props.categories[0].slug || [],
       statuses: ['publish', 'draft', 'pending'],
       currentPage: 1,
     };
@@ -56,7 +56,6 @@ class MyPosts extends Component {
         <Helmet>
           <title>My Posts</title>
           <meta property="og:title" content="My Posts" />
-          <meta property="og:url" content={window.location.pathname} />
           <meta property="og:description" content="List of post contributed by user" />
         </Helmet>
         <Row>
@@ -87,7 +86,7 @@ class MyPosts extends Component {
                 style={{ minWidth: '200px' }}
                 value={this.state.categories}
                 onChange={this.handleChangeCategories}>
-                {categories.map(category => <Option key={category}>{category}</Option>)}
+                {categories.map(category => <Option key={category.slug}>{category.name}</Option>)}
               </Select>
             )}
           </Col>
@@ -112,10 +111,10 @@ class MyPosts extends Component {
             </span>
           );
           const columns = [
-            { title: 'Title', key: 'title', dataIndex: 'post_title' },
-            { title: 'Status', key: 'status', render: record => <span>{startCase(record.post_status)}</span> },
-            { title: 'Categories', key: 'categories', render: record => <span>{record.categories.map(category => <Tag>{category}</Tag>)}</span> },
-            { title: 'Action', key: 'action', render: record => <Actions {...record} /> },
+            { title: 'Title', width: 400, key: 'title', dataIndex: 'post_title' },
+            { title: 'Status', width: 100, key: 'status', render: record => <span>{startCase(record.post_status)}</span> },
+            { title: 'Categories', width: 150, key: 'categories', render: record => <span>{record.categories.map(category => <Tag>{category.name}</Tag>)}</span> },
+            { title: 'Action', width: 200, key: 'action', render: record => <Actions {...record} /> },
           ];
           return (
             <Row>
@@ -123,7 +122,10 @@ class MyPosts extends Component {
                 rowKey="id"
                 dataSource={myPosts.my_posts}
                 columns={columns}
-                expandedRowRender={record => <span>{record.post_excerpt}</span>}
+                expandedRowRender={record => {
+                  const content = { __html: record.post_content };
+                  return <div dangerouslySetInnerHTML={content} />;
+                }}
                 pagination={false} />
               <br />
               <Col align="middle" span={24}>
@@ -146,7 +148,7 @@ const MyPostsWithQuery = compose(
     name: 'myPosts',
     options: ({ categories }) => ({
       variables: {
-        categories,
+        categories: categories[0].slug,
         statuses: ['publish', 'draft', 'pending'],
         limit: 100,
         skip: 0,
@@ -160,4 +162,4 @@ const MyPostsWithQuery = compose(
 
 export default graphql(categoriesQuery, {
   name: 'categories',
-})(props => <MyPostsWithQuery {...props.categories} />);
+})(props => <MyPostsWithQuery categories={props.categories.categories} />);

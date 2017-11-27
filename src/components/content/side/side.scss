@@ -14,6 +14,18 @@
   }
 
   li a:hover {
-    background-color: #999999;
+    background-color: rgb(225,225,225);
+  }
+}
+
+.collapse {
+  background: rgb(200,200,200);
+  div {
+    div:nth-of-type(2) {
+      padding: 0px;
+      div {
+        padding: 0px;
+      }
+    }
   }
 }

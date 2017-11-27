@@ -10,13 +10,15 @@ const { SubMenu, Item } = Menu;
 
 const Menus = props => {
   const { mode, className, theme } = props;
-  const { menu, loading } = props.data;
+  const { loading } = props.data;
   if (loading) return <div>Loading</div>;
+  const { menu } = props.data;
   const items = sortBy(menu.items, 'order');
   return (
     <Menu
       mode={mode}
-      theme="dark"
+      theme={theme}
+      inlineIndent={14}
       className={className}>
       {items.map(item => {
         const { object_type: type, order, children } = item;
@@ -27,7 +29,7 @@ const Menus = props => {
           pathName = `/${type}/${item.navitemcategory.slug}`;
         } else {
           linkText = item.navitem.post_title;
-          if (type === 'custom') pathName = `${item.url}`;
+          if (type === 'custom') pathName = `/${item.url}`;
           else if (type === 'page') pathName = `/${item.navitem.post_name}`;
           else pathName = `/${type}/${item.navitem.post_name}`;
         }
@@ -47,7 +49,7 @@ const Menus = props => {
                   pathNameChild = `/${typeChild}/${child.navitemcategory.slug}`;
                 } else {
                   linkTextChild = child.navitem.post_title;
-                  if (typeChild === 'custom') pathNameChild = `${child.url}`;
+                  if (typeChild === 'custom') pathNameChild = `/${child.url}`;
                   else if (typeChild === 'page') pathNameChild = `/${child.navitem.post_name}`;
                   else pathNameChild = `/${typeChild}/${child.navitem.post_name}`;
                 }

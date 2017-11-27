@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Helmet } from 'react-helmet';
-import { Card } from 'antd';
+import { Card, Icon } from 'antd';
 import { graphql } from 'react-apollo';
 import postQuery from 'src/graphql/gql/queries/post.gql';
 import { WhenNotFound } from 'src/components/routes';
@@ -24,14 +24,27 @@ export default class Page extends Component {
       if (!post) return <WhenNotFound />;
       const {
         post_title: title, post_excerpt: excerpt, post_content: content,
-        thumbnail, author: { display_name: displayName, user_nicename: userNicename },
+        thumbnail, author, post_date: postDate,
       } = post;
+      let displayName;
+      let userNicename;
+      if (author) {
+        displayName = author.display_name;
+        userNicename = author.user_nicename;
+      }
+      let date;
+      let dateString;
+      if (postDate) {
+        date = new Date(0);
+        date.setMilliseconds(postDate);
+        dateString = date.toDateString();
+      }
 
       const { FacebookShareButton, GooglePlusShareButton, TwitterShareButton } = ShareButtons;
       const FacebookIcon = generateShareIcon('facebook');
       const TwitterIcon = generateShareIcon('twitter');
       const GooglePlusIcon = generateShareIcon('google');
-      const shareUrl = window.location.pathname;
+      const shareUrl = !SERVER ? window.location.pathname : null;
       const share = (
         <div className={css.share}>
           <FacebookShareButton url={shareUrl} quote={title} className={css.shareButton}>
@@ -45,13 +58,19 @@ export default class Page extends Component {
           </GooglePlusShareButton>
         </div>
       );
+      const postmeta = (
+        <h4>
+          {author ? <span><Icon type="user" /> {displayName || userNicename}</span> : null}
+          {author && postDate ? <span className="ant-divider" /> : null}
+          {postDate ? <span><Icon type="calendar" /> {dateString}</span> : null}
+        </h4>
+      );
 
       return (
         <div>
           <Helmet>
             <title>{title}</title>
             <meta property="og:title" content={title} />
-            <meta property="og:url" content={window.location.pathname} />
             <meta property="og:description" content={excerpt} />
             {thumbnail ? <meta property="og:image" content={thumbnail} /> : <div />}
           </Helmet>
@@ -62,7 +81,7 @@ export default class Page extends Component {
             noHovering
             bodyStyle={{ padding: '0px' }}>
             <Card
-              title={<h3>by : {displayName || userNicename}</h3>}
+              title={postmeta}
               bordered={false}
               noHovering
               className={css.card}>

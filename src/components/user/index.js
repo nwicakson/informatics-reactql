@@ -5,10 +5,10 @@ import { Link } from 'react-router-dom';
 const { Item, Divider } = Menu;
 
 export default ({ user, refetch }) => {
-  const { user_nicename: niceName } = user;
+  const { display_name: displayName } = user;
   const handleClick = e => {
     if (e.key === 'logout') {
-      window.localStorage.removeItem('reactQLJWT');
+      if (!SERVER) window.localStorage.removeItem('reactQLJWT');
       refetch();
     }
   };
@@ -27,7 +27,7 @@ export default ({ user, refetch }) => {
   return (
     <div>
       <Dropdown overlay={menu} trigger={['click']} placement="bottomRight">
-        <Button type="primary" size="large"><Icon type="user" /> {niceName} <Icon type="down" /></Button>
+        <Button type="primary" size="large"><Icon type="user" /> {displayName} <Icon type="down" /></Button>
       </Dropdown>
     </div>
   );

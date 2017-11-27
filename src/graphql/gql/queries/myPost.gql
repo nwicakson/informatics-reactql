@@ -5,6 +5,9 @@ query getMyPost($id: Int) {
     post_excerpt
     post_content
     post_status
-    categories
+    categories {
+      slug
+      name
+    }
   }
 }

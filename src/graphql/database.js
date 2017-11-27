@@ -274,7 +274,7 @@ export default class Database {
         await categories.map(category => {
           Terms.findOne({
             where: {
-              name: category,
+              slug: category,
             },
           }).then(term => (
             TermRelationships.create({
@@ -444,6 +444,42 @@ export default class Database {
           });
           return staffProperty;
         }));
+      },
+
+      getExcerpt({ post_excerpt, post_content }) {
+        let words = post_excerpt.length > 0 ? post_excerpt : post_content;
+
+        // cut after read more
+        const readMore = words.indexOf('<!--more-->');
+        if (readMore > -1) words = words.substring(0);
+
+        // remove tag
+        const trimmed = words.trim();
+        const splitContent = trimmed.split('\n');
+        lodash.map(splitContent, (line, index) => {
+          let newline = line;
+          let i = 0;
+          while (true) {
+            if (newline[i] === '<' || newline[i] === '[') {
+              const closeTag = newline[i] === '<' ? newline.indexOf('>', i) : newline.indexOf(']', i);
+              if (closeTag > -1) newline = newline.substring(0, i) + newline.substring(closeTag + 1, newline.length);
+              i -= 1;
+            }
+            if (newline[i] === '&' && newline.indexOf('&nbsp;', i) > -1) {
+              newline = newline.substring(0, i) + newline.substring(i + '&nbsp;'.length, newline.length);
+              i -= 1;
+            }
+            if (i >= newline.length - 1) break;
+            i += 1;
+          }
+          splitContent[index] = newline;
+        });
+
+        // cut words until n words
+        const n = 55;
+        let resultArray = splitContent.join('').split(' ');
+        if (resultArray.length > n) resultArray = resultArray.slice(0, n);
+        return `${resultArray.join(' ')}`;
       },
 
       getDefaultThumbnail() {
@@ -618,19 +654,18 @@ export default class Database {
       },
 
       async getCategoriesByPostId(id) {
-        const categories = [];
         const categoriesId = await TermRelationships.findAll({
           where: {
             object_id: id,
           },
         });
-        if (categoriesId) {
-          categoriesId.map(categoryId => (
-            categories.push(Terms.findById(categoryId.term_taxonomy_id).then(category => category.dataValues.name))
-          ));
-          return categories;
-        }
-        return null;
+        return Terms.findAll({
+          where: {
+            term_id: {
+              $in: lodash.map(categoriesId, 'term_taxonomy_id'),
+            },
+          },
+        });
       },
 
       getCategories() {
@@ -641,7 +676,7 @@ export default class Database {
               taxonomy: 'category',
             },
           },
-        }).then(categories => lodash.map(categories, 'name'));
+        });
       },
 
       getCategoryById(termId) {
@@ -672,8 +707,7 @@ export default class Database {
             }).then(childPosts => {
               if (childPosts.length > 0) {
                 childPosts.map(childPost =>
-                  post.dataValues.children.push({ id: Number(childPost.dataValues.id) }),
-                );
+                  post.dataValues.children.push({ id: Number(childPost.dataValues.id) }));
               }
               return post;
             });

@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { Helmet } from 'react-helmet';
-import { Input, Button, Form, Select, notification } from 'antd';
+import { Input, Button, Form, Select, notification, Tooltip, Icon } from 'antd';
 import { graphql, compose } from 'react-apollo';
 import myPostQuery from 'src/graphql/gql/queries/myPost.gql';
 import categoriesQuery from 'src/graphql/gql/queries/categories.gql';
 import editPostMutation from 'src/graphql/gql/mutations/editPost.gql';
+import { map } from 'lodash';
 import css from './editPost.scss';
 
 const { TextArea } = Input;
@@ -34,7 +35,7 @@ class EditPost extends Component {
         title,
         excerpt,
         content,
-        categories,
+        categories: map(categories, 'slug'),
       });
     }
   }
@@ -78,13 +79,12 @@ class EditPost extends Component {
   }
 
   render() {
-    const ReactQuill = this.ReactQuill;
+    const { ReactQuill } = this;
     return (
       <div>
         <Helmet>
           <title>Edit Post</title>
           <meta property="og:title" content="Edit Post" />
-          <meta property="og:url" content={window.location.pathname} />
           <meta property="og:description" content="Edit the suggestion post" />
         </Helmet>
         <Form layout="vertical">
@@ -109,7 +109,14 @@ class EditPost extends Component {
                 onChange={this.handleChange} />
             )}
           </Item>
-          <Item label="Excerpt">
+          <Item label={(
+            <span>
+              Excerpt&nbsp;
+              <Tooltip title="Passage from the article">
+                <Icon type="question-circle-o" />
+              </Tooltip>
+            </span>
+          )}>
             <TextArea
               name="excerpt"
               value={this.state.excerpt}
@@ -124,7 +131,7 @@ class EditPost extends Component {
                 mode="multiple"
                 value={this.state.categories}
                 onChange={this.handleChangeCategories}>
-                {this.props.categories.categories.map(category => <Option key={category}>{category}</Option>)}
+                {this.props.categories.categories.map(category => <Option key={category.slug}>{category.name}</Option>)}
               </Select>
             )}
           </Item>

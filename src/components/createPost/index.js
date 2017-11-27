@@ -45,13 +45,14 @@ class CreatePost extends Component {
         post_excerpt: this.state.excerpt,
         post_content: this.state.content,
         categories: this.state.categories,
+        post_status: this.state.status,
       },
     });
     this.props.history.push(`/edit-post/${createPost.id}`);
   }
 
   render() {
-    const ReactQuill = this.ReactQuill;
+    const { ReactQuill } = this;
     // const { getFieldDecorator, getFieldError, isFieldTouched } = this.props.form;
     const submitDraftDisabled = false;
     const submitReviewDisabled = false;
@@ -62,7 +63,6 @@ class CreatePost extends Component {
         <Helmet>
           <title>Create Post</title>
           <meta property="og:title" content="Create Post" />
-          <meta property="og:url" content={window.location.pathname} />
           <meta property="og:description" content="Create a suggestion post" />
         </Helmet>
         <Form layout="vertical">
@@ -126,7 +126,7 @@ class CreatePost extends Component {
                 value={this.state.categories}
                 onChange={this.handleChangeCategories}>
                 {this.props.categories.categories.map(category => (
-                  <Option key={category}>{category}</Option>
+                  <Option key={category.slug}>{category.name}</Option>
                 ))}
               </Select>
               // )

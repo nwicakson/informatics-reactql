@@ -5,6 +5,9 @@ mutation createPost($post_title: String, $post_content: String, $post_excerpt: S
     post_excerpt
     post_content
     post_status
-    categories
+    categories {
+      name
+      slug
+    }
   }
 }

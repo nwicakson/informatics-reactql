@@ -60,6 +60,9 @@
 .sider {
   min-height: 100vh;
   max-height: 100%;
+  a {
+    overflow-x: auto;
+  }
 }
 
 .menuSider {
@@ -76,7 +79,7 @@
 
 .middleContent {
   width: 70%;
-  max-width: 85%;
+  max-width: 100%;
   height: 100%;
   margin: 24px 16px;
   padding: 24px;
@@ -86,4 +89,8 @@
     line-height: 1.2;
     font-weight: 700;
   }
+}
+
+.upperMiddleContent {
+  margin: 0 0 10px 0;
 }

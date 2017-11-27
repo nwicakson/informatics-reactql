@@ -1,5 +1,7 @@
 // it's like rest endpoint
 const Definitions = `
+  scalar Date
+
   type Menu {
     id: ID!
     name: String
@@ -35,9 +37,10 @@ const Definitions = `
     post_type: String
     post_name: String
     post_parent: Int
+    post_date: Date
     menu_order: Int
     post_author: Int
-    categories: [String]
+    categories: [Category]
     thumbnail: String
     post_meta(keys: [MetaType], after: String, first: Int, before: String, last: Int): Postmeta
     author: User
@@ -114,7 +117,7 @@ const Definitions = `
     my_post(id: Int): Post
     menu(name: String): Menu
     post(name: String, id: Int): Post
-    categories: [String]
+    categories: [Category]
     category(term_id: Int, slug: String): Category
     postmeta(post_id: Int, after: String, first: Int, before: String, last: Int): Postmeta
     user(id: String): User

@@ -51,9 +51,7 @@ class LoginForm extends Component {
 
       // Store the returned JWT token in `localStorage` if we're in the
       // browser, so we can pass that over in subsequent requests
-      if (!SERVER) {
-        window.localStorage.setItem('reactQLJWT', login.jwt);
-      }
+      if (!SERVER) window.localStorage.setItem('reactQLJWT', login.jwt);
     } catch (e) {
       // Some kind of error was returned -- display it in the console
       // eslint-disable-next-line no-console

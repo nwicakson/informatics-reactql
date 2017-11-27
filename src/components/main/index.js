@@ -27,9 +27,8 @@ import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import MediaQuery from 'react-responsive';
 import Menu from '../menu';
-import ContentLeft from '../contentLeft';
-import ContentMiddle from '../contentMiddle';
-import ContentRight from '../contentRight';
+import { LeftContent, RightContent } from '../content/side';
+import MiddleContent from '../content/middle';
 import LanguageSwitcher from '../languangeSwitcher';
 import User from '../user';
 import Login from '../login';
@@ -43,9 +42,9 @@ const CustomizedSider = props => (
     <Sider
       collapsed={props.collapsed}
       collapsedWidth={0}
-      width={160}
+      width={150}
       className={css.sider}>
-      <Menu mode="inline" name="desktop-menu" theme="dark" className={css.menuSider} />
+      <Menu mode="inline" name="header-menu" theme="dark" className={css.menuSider} />
     </Sider>
   </MediaQuery>
 );
@@ -72,8 +71,8 @@ export default class Main extends Component {
           <title>Departemen Informatika, FTIK – ITS</title>
           <link rel="icon" href={iconHome} />
           <meta property="og:site_name" content="Departemen Informatika, FTIK – ITS" />
+          <meta property="og:url" content="https://if.its.ac.id" />
           <meta property="og:title" content="Departemen Informatika, FTIK – ITS" />
-          <meta property="og:url" content={window.location.pathname} />
           <meta property="og:description" content="Jurusan Teknik Informatika" />
           <meta property="og:image" content={iconHome} />
         </Helmet>
@@ -91,7 +90,7 @@ export default class Main extends Component {
                   <img alt="icon" src={iconHome} style={{ verticalAlign: 'middle' }} />
                 </Link>
                 <MediaQuery minWidth={1024}>
-                  <Menu mode="horizontal" name="desktop-menu" theme="dark" className={css.menuHeader} />
+                  <Menu mode="horizontal" name="header-menu" theme="dark" className={css.menuHeader} />
                 </MediaQuery>
               </div>
               <div className={css.navRight}>
@@ -107,17 +106,29 @@ export default class Main extends Component {
           <Layout>
             <CustomizedSider collapsed={this.state.collapsed} />
             {
-              <Content className={css.sideContent}>
-                <ContentLeft />
-              </Content>
+              <MediaQuery minWidth={1024}>
+                <Content className={css.sideContent}>
+                  <LeftContent active />
+                </Content>
+              </MediaQuery>
             }
             <Content className={css.middleContent}>
-              <ContentMiddle data={data} />
+              <MediaQuery maxWidth={1024}>
+                <Content className={css.upperMiddleContent}>
+                  <LeftContent />
+                </Content>
+                <Content className={css.upperMiddleContent}>
+                  <RightContent />
+                </Content>
+              </MediaQuery>
+              <MiddleContent data={data} />
             </Content>
             {
-              <Content className={css.sideContent}>
-                <ContentRight />
-              </Content>
+              <MediaQuery minWidth={1024}>
+                <Content className={css.sideContent}>
+                  <RightContent active />
+                </Content>
+              </MediaQuery>
             }
           </Layout>
         </Layout>

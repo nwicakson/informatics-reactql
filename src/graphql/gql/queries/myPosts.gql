@@ -3,8 +3,12 @@ query getMyPosts($statuses: [String], $categories: [String], $limit: Int, $skip:
     id
     post_title
     post_excerpt
+    post_content
     post_status
-    categories
+    categories {
+      slug
+      name
+    }
   }
   my_total_posts(statuses: $statuses, categories: $categories)
 }
