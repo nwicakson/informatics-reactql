@@ -1,5 +1,6 @@
 query getPostsWithCategory($slug: String, $postType: String, $limit: Int, $skip: Int) {
   category(slug: $slug) {
+    name
     posts(post_type: $postType, limit: $limit, skip: $skip) {
       id
       post_title
@@ -9,7 +10,7 @@ query getPostsWithCategory($slug: String, $postType: String, $limit: Int, $skip:
     }
     total_posts(post_type: $postType)
   }
-  settings {
+  setting {
     defaultThumbnail
   }
 }

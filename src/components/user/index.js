@@ -14,14 +14,14 @@ export default ({ user, refetch }) => {
   };
   const menu = (
     <Menu style={{ lineHeight: '30px' }} onClick={handleClick}>
-      <Item key="create-post">
-        <Link to="/create-post">Create Post</Link>
+      <Item key="buat-artikel">
+        <Link to="/buat-artikel">Buat Artikel</Link>
       </Item>
-      <Item key="my-posts">
-        <Link to="/my-posts">My Posts</Link>
+      <Item key="artikel-saya">
+        <Link to="/artikel-saya">Artikel Saya</Link>
       </Item>
       <Divider />
-      <Item key="logout"><Icon type="logout" />  Logout</Item>
+      <Item key="logout"><Icon type="logout" />  Keluar</Item>
     </Menu>
   );
   return (

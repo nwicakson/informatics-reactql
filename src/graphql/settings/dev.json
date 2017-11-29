@@ -1,8 +1,9 @@
 {
   "public": {
     "baseUrl": "http://localhost/nwicakson/ifweb",
-    "uploads": "http://localhost/nwicakson/ifweb/wp-content/uploads/",
     "amazonS3": false,
+    "uploads": "http://localhost/nwicakson/ifweb/wp-content/uploads/",
+    "defaultThumbnail": "http://localhost/nwicakson/ifweb/wp-content/uploads/2017/11/default-thumbnail.jpg",
     "staffProperties": [
       "name",
       "category",
@@ -12,8 +13,7 @@
       "last_education_place",
       "position"
     ],
-    "menu": "header-menu",
-    "defaultThumbnail": "default-thumbnail.jpg"
+    "menu": "header-menu"
   },
   "private": {
     "wpPrefix": "wp_",

@@ -12,7 +12,7 @@ query getPost($post: String){
       display_name
     }
   },
-  settings {
+  setting {
     uploads
     amazonS3
   }

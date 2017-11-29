@@ -54,16 +54,14 @@ class MyPosts extends Component {
     return (
       <div>
         <Helmet>
-          <title>My Posts</title>
-          <meta property="og:title" content="My Posts" />
-          <meta property="og:description" content="List of post contributed by user" />
+          <title>Artikel Saya</title>
+          <meta property="og:title" content="Artikel Saya" />
+          <meta property="og:description" content="Daftar usulan artikel saya" />
         </Helmet>
-        <Row>
-          <Col align="middle" span={24}><h1>My Posts</h1></Col>
-        </Row>
+        <h1 style={{ textAlign: 'center' }}>Artikel Saya</h1>
         <br />
         <Row>
-          <Col span={4}><h3>Statuses</h3></Col>
+          <Col span={4}><h3>Status</h3></Col>
           <Col span={20}>
             <Select
               mode="multiple"
@@ -78,7 +76,7 @@ class MyPosts extends Component {
         </Row>
         <br />
         <Row>
-          <Col span={4}><h3>Categories</h3></Col>
+          <Col span={4}><h3>Kategori</h3></Col>
           <Col span={20}>
             {categories.loading ? <div>Loading ...</div> : (
               <Select
@@ -97,24 +95,25 @@ class MyPosts extends Component {
           const Actions = ({ id }) => (
             <span>
               <Button>
-                <Link to={`/edit-post/${id}`}>Edit</Link>
+                <Link to={`/ubah-artikel/${id}`}>Ubah</Link>
               </Button>
               <span className="ant-divider" />
               <Popconfirm
                 onConfirm={() => this.handleDelete(id)}
-                placement="bottom"
-                title="Are you sure to delete this?"
-                okText="Yes"
-                cancelText="No">
-                <Button>Delete</Button>
+                placement="bottomRight"
+                title={`Apa anda yakin ingin menghapus data dengan id ${id}?`}
+                okText="Iya"
+                cancelText="Tidak">
+                <Button>Hapus</Button>
               </Popconfirm>
             </span>
           );
           const columns = [
-            { title: 'Title', width: 400, key: 'title', dataIndex: 'post_title' },
+            { title: 'ID', width: 100, key: 'id', render: record => <span>{record.id}</span> },
+            { title: 'Judul', width: 400, key: 'title', dataIndex: 'post_title' },
             { title: 'Status', width: 100, key: 'status', render: record => <span>{startCase(record.post_status)}</span> },
-            { title: 'Categories', width: 150, key: 'categories', render: record => <span>{record.categories.map(category => <Tag>{category.name}</Tag>)}</span> },
-            { title: 'Action', width: 200, key: 'action', render: record => <Actions {...record} /> },
+            { title: 'Kategori', width: 150, key: 'categories', render: record => <span>{record.categories.map(category => <Tag>{category.name}</Tag>)}</span> },
+            { title: 'Aksi', width: 200, key: 'action', render: record => <Actions {...record} /> },
           ];
           return (
             <Row>

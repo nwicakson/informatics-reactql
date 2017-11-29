@@ -12,7 +12,7 @@ query getPosts($postType: String, $limit: Int, $skip: Int) {
     }
   }
   total_posts(post_type: $postType)
-  settings {
+  setting {
     defaultThumbnail
   }
 }

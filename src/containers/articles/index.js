@@ -10,7 +10,7 @@ const Articles = props => {
   const {
     refetch,
     posts,
-    settings: { defaultThumbnail },
+    setting: { defaultThumbnail },
     total_posts: totalPosts, variables,
   } = props.data;
   return (
@@ -20,6 +20,7 @@ const Articles = props => {
         <meta property="og:title" content="Articles" />
         <meta property="og:description" content="List of articles that has been published" />
       </Helmet>
+      <h1 style={{ textAlign: 'center' }}>Daftar Artikel</h1>
       <ListCards
         posts={posts}
         defaultThumbnail={defaultThumbnail}

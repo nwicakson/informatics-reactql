@@ -24,7 +24,7 @@ import config from 'kit/config';
 import counterReducer from 'src/reducers/counter';
 
 // Main component -- i.e. the 'root' React component in our app
-import Main from 'src/components/main';
+import Main from './containers/main';
 
 // Init global styles.  These will be added to the resulting CSS automatically
 // without any class hashing.  Use this to include default or framework CSS.

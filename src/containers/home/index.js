@@ -14,7 +14,7 @@ const Home = props => {
       className={css.carousel}>
       {data.posts.map(post => {
         const { post_title: title, post_name: name, thumbnail, post_excerpt: postExcerpt } = post;
-        const image = thumbnail || data.settings.defaultThumbnail;
+        const image = thumbnail || data.setting.defaultThumbnail;
         return (
           <div className={css.carouselImage} style={{ backgroundImage: `url(${image})` }}>
             <Link to={`/${encodeURIComponent(name)}`}><div className={css.carouselLink} /></Link>

@@ -1,15 +1,13 @@
 // it's like router
-export default function Resolvers(Connectors, publicSettings) {
+export default function Resolvers(Connectors) {
   return {
     Query: {
-      settings() {
-        const obj = publicSettings;
-        obj.defaultThumbnail = Connectors.getDefaultThumbnail();
-        return obj;
+      setting() {
+        return Connectors.getSetting();
       },
       category(_, { term_id: termId, slug }) {
         if (termId) return Connectors.getCategoryById(termId);
-        return Connectors.getCategory(slug);
+        return Connectors.getCategoryByName(slug);
       },
       posts(_, args) {
         return Connectors.getPosts(args);
@@ -20,11 +18,9 @@ export default function Resolvers(Connectors, publicSettings) {
       menu(_, { name }) {
         return Connectors.getMenu(name);
       },
-      post(_, { name, id }) {
-        if (name) {
-          return Connectors.getPostByName(name, id);
-        }
-        return Connectors.getPostById(id);
+      post(_, { id, name }) {
+        if (id) return Connectors.getPostById(id);
+        return Connectors.getPostByName(name, id);
       },
       postmeta(_, { postId }) {
         return Connectors.getPostmeta(postId);
@@ -118,7 +114,7 @@ export default function Resolvers(Connectors, publicSettings) {
         return null;
       },
       navitemcategory(menuItem) {
-        if (menuItem.object_type === 'category') { return Connectors.getCategoryById(menuItem.linkedId); }
+        if (menuItem.object_type === 'category') return Connectors.getCategoryById(menuItem.linkedId);
         return null;
       },
     },

@@ -26,12 +26,12 @@ import { Layout, Icon, Affix } from 'antd';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import MediaQuery from 'react-responsive';
-import Menu from '../menu';
-import { LeftContent, RightContent } from '../content/side';
-import MiddleContent from '../content/middle';
-import LanguageSwitcher from '../languangeSwitcher';
-import User from '../user';
-import Login from '../login';
+import { LeftContent, RightContent } from 'src/containers/content/side';
+import MiddleContent from 'src/containers//content/middle';
+import Menu from 'src/components/menu';
+import LanguageSwitcher from 'src/components/languangeSwitcher';
+import User from 'src/components/user';
+import Login from 'src/components/login';
 import css from './main.scss';
 import iconHome from './icon-informatika.png';
 
@@ -121,7 +121,7 @@ export default class Main extends Component {
                   <RightContent />
                 </Content>
               </MediaQuery>
-              <MiddleContent data={data} />
+              <MiddleContent {...this.props} />
             </Content>
             {
               <MediaQuery minWidth={1024}>

@@ -3,13 +3,13 @@ const Definitions = `
   scalar Date
 
   type Menu {
-    id: ID!
+    id: Int!
     name: String
     items: [MenuItem]
   }
 
   type MenuItem {
-    id: ID!
+    id: Int!
     post_title: String
     linkedId: Int
     object_type: String
@@ -54,7 +54,6 @@ const Definitions = `
   }
 
   type Postmeta {
-    id: Int
     meta_id: Int
     post_id: Int
     meta_key: String
@@ -63,7 +62,7 @@ const Definitions = `
   }
 
   type User {
-    id: String
+    id: Int
     user_login: String
     user_pass: String
     user_nicename: String
@@ -109,7 +108,7 @@ const Definitions = `
   }
 
   type Query {
-    settings: Setting
+    setting: Setting
     posts(post_type: String = "post", limit: Int = 10, skip: Int = 0): [Post]
     total_posts(post_type: String = "post"): Int
     my_posts(statuses: [String] = ["publish", "draft", "pending"], categories: [String] = [], limit: Int = 10, skip: Int = 0): [Post]

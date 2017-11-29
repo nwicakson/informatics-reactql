@@ -110,7 +110,7 @@ class LoginForm extends Component {
           className={css.formSubmitButton}
           htmlType="submit"
           disabled={hasErrors(getFieldsError())}>
-            Log In
+            Masuk
         </Button>
       </Form>
 
@@ -133,7 +133,7 @@ const LoginFormWithQuery = graphql(loginMutation, {
 export default () => (
   <div>
     <Popover content={<LoginFormWithQuery />} placement="bottomRight" trigger="click">
-      <Button type="primary" size="large"><Icon type="login" /> Login</Button>
+      <Button type="primary" size="large"><Icon type="login" /> Masuk</Button>
     </Popover>
   </div>
 );

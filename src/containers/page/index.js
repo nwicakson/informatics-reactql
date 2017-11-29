@@ -5,7 +5,7 @@ import { graphql } from 'react-apollo';
 import postQuery from 'src/graphql/gql/queries/post.gql';
 import { WhenNotFound } from 'src/components/routes';
 import { ShareButtons, generateShareIcon } from 'react-share';
-import SinglePost from './singlePost';
+import SinglePost from 'src/components/singlePost';
 import css from './page.scss';
 
 @graphql(postQuery, {

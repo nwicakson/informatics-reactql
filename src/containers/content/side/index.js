@@ -15,7 +15,7 @@ export const Categories = graphql(categoriesQuery)(props => {
   return (
     <div className={css.list}>
       <ul>
-        {data.categories.map(category => <li><Link to={`/category/${category.slug}`}>{category.name}</Link></li>)}
+        {data.categories.map(category => <li><Link to={`/kategori/${category.slug}`}>{category.name}</Link></li>)}
       </ul>
     </div>
   );
@@ -29,7 +29,7 @@ export const Links = graphql(linksQuery)(props => {
       <ul>
         {data.links.map(link => {
           const { link_name: name, link_url: url } = link;
-          return <li><Link to={url}>{name}</Link></li>;
+          return <li><a href={url}>{name}</a></li>;
         })}
       </ul>
     </div>
@@ -61,10 +61,10 @@ export const LeftContent = props => {
   const activeKey = props.active ? ['1', '2'] : [];
   return (
     <Collapse defaultActiveKey={activeKey} className={css.collapse}>
-      <Panel header="Categories" key="1">
+      <Panel header="Kategori" key="1">
         <Categories />
       </Panel>
-      <Panel header="Links" key="2">
+      <Panel header="Tautan" key="2">
         <Links />
       </Panel>
     </Collapse>
@@ -75,10 +75,10 @@ export const RightContent = props => {
   const activeKey = props.active ? ['1', '2'] : [];
   return (
     <Collapse defaultActiveKey={activeKey} className={css.collapse}>
-      <Panel header="Hot News" key="1">
+      <Panel header="Berita Terbaru" key="1">
         <HotNews />
       </Panel>
-      <Panel header="Links" key="2">
+      <Panel header="Tautan" key="2">
         <Links />
       </Panel>
     </Collapse>

@@ -7,10 +7,10 @@ import * as settings from './settings/settings';
 
 // returns Database object that has provides connectors to the database
 const database = new Database(settings);
-const connectors = database.connectors;
+const { connectors } = database;
 
 // Resolving functions that use the database connections to resolve GraphQL queries
-const resolvers = Resolvers(connectors, settings.publicSettings);
+const resolvers = Resolvers(connectors);
 
 const schema = makeExecutableSchema({
   // GraphQL schema definitions

@@ -112,8 +112,9 @@ export default class Database {
 
   getConnectors() {
     const { Post, Postmeta, User, Usermeta, Terms, TermRelationships, TermTaxonomy, Links } = this.getModels();
-    const { amazonS3, uploads, defaultThumbnail, staffProperties, baseUrl } = this.settings.publicSettings;
-    const { wpPrefix: prefix } = this.settings.privateSettings;
+    const { publicSettings, privateSettings } = this.settings;
+    const { amazonS3, uploads, defaultThumbnail, staffProperties, baseUrl } = publicSettings;
+    const { wpPrefix: prefix } = privateSettings;
 
     Terms.hasMany(TermRelationships, { foreignKey: 'term_taxonomy_id' });
     TermRelationships.belongsTo(Terms, { foreignKey: 'term_taxonomy_id' });
@@ -482,24 +483,8 @@ export default class Database {
         return `${resultArray.join(' ')}`;
       },
 
-      getDefaultThumbnail() {
-        return Postmeta.findOne({
-          where: {
-            meta_key: `_${prefix}attached_file`,
-            meta_value: {
-              $like: `%${defaultThumbnail}%`,
-            },
-          },
-        }).then(thumbnail => {
-          if (thumbnail) {
-            const thumbnailSrc = amazonS3 ?
-              `${uploads}PHPUnserialize.unserialize(thumbnail).key` :
-              uploads + thumbnail.meta_value;
-
-            return thumbnailSrc;
-          }
-          return null;
-        });
+      getSetting() {
+        return publicSettings;
       },
 
       async getMyPosts({ statuses, categories, limit, skip }, ctx) {
@@ -683,7 +668,7 @@ export default class Database {
         return Terms.findById(termId);
       },
 
-      getCategory(slug) {
+      getCategoryByName(slug) {
         return Terms.findOne({
           where: { slug },
         });

@@ -83,20 +83,20 @@ class EditPost extends Component {
     return (
       <div>
         <Helmet>
-          <title>Edit Post</title>
-          <meta property="og:title" content="Edit Post" />
-          <meta property="og:description" content="Edit the suggestion post" />
+          <title>Ubah Artikel</title>
+          <meta property="og:title" content="Ubah Artikel" />
+          <meta property="og:description" content="Ubah usulan artikel" />
         </Helmet>
         <Form layout="vertical">
-          <h1>Edit Post</h1>
-          <Item label="Title">
+          <h1 style={{ textAlign: 'center' }}>Ubah Artikel</h1>
+          <Item label="Judul">
             <Input
               name="title"
               value={this.state.title}
               onChange={this.handleChange}
               size="large" />
           </Item>
-          <Item label="Content">
+          <Item label="Konten">
             {ReactQuill ? (
               <ReactQuill
                 theme="snow"
@@ -111,8 +111,8 @@ class EditPost extends Component {
           </Item>
           <Item label={(
             <span>
-              Excerpt&nbsp;
-              <Tooltip title="Passage from the article">
+              Kutipan&nbsp;
+              <Tooltip title="Bagian pembuka yang menarik dari artikel">
                 <Icon type="question-circle-o" />
               </Tooltip>
             </span>
@@ -123,7 +123,7 @@ class EditPost extends Component {
               onChange={this.handleChange}
               autosize={{ minRows: 2, maxRows: 6 }} />
           </Item>
-          <Item label="Categories">
+          <Item label="Kategori">
             {this.props.categories.loading ? (
               <div>Loading ...</div>
             ) : (
@@ -136,8 +136,8 @@ class EditPost extends Component {
             )}
           </Item>
           <div className={css.submit}>
-            <Button onClick={this.handleSubmitDraft} loading={this.state.submitLoading}>Save as Draft</Button>
-            <Button onClick={this.handleSubmitReview} loading={this.state.submitLoading} type="primary">Submit for Review</Button>
+            <Button onClick={this.handleSubmitDraft} loading={this.state.submitLoading}>Simpan sebagai Draft</Button>
+            <Button onClick={this.handleSubmitReview} loading={this.state.submitLoading} type="primary">Kumpulkan untuk diulas</Button>
           </div>
         </Form>
       </div>

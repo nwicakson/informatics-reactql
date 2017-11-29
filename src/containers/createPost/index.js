@@ -48,7 +48,7 @@ class CreatePost extends Component {
         post_status: this.state.status,
       },
     });
-    this.props.history.push(`/edit-post/${createPost.id}`);
+    this.props.history.push(`/ubah-artikel/${createPost.id}`);
   }
 
   render() {
@@ -61,14 +61,14 @@ class CreatePost extends Component {
     return (
       <div>
         <Helmet>
-          <title>Create Post</title>
-          <meta property="og:title" content="Create Post" />
-          <meta property="og:description" content="Create a suggestion post" />
+          <title>Buat Artikel</title>
+          <meta property="og:title" content="Buat Artikel" />
+          <meta property="og:description" content="Membuat usulan artikel" />
         </Helmet>
         <Form layout="vertical">
-          <h1>Create Post</h1>
+          <h1 style={{ textAlign: 'center' }}>Buat Artikel</h1>
           <Item
-            label="Title"
+            label="Judul"
             validateStatus={submitDraftDisabled ? 'error' : ''}
             help={submitDraftDisabled || ''}>
             {
@@ -83,7 +83,7 @@ class CreatePost extends Component {
               // )
             }
           </Item>
-          <Item label="Content">
+          <Item label="Konten">
             {
               ReactQuill ? (
                 <ReactQuill
@@ -100,8 +100,8 @@ class CreatePost extends Component {
           </Item>
           <Item label={(
             <span>
-              Excerpt&nbsp;
-              <Tooltip title="Passage from the article">
+              Kutipan&nbsp;
+              <Tooltip title="Bagian pembuka yang menarik dari artikel">
                 <Icon type="question-circle-o" />
               </Tooltip>
             </span>
@@ -116,7 +116,7 @@ class CreatePost extends Component {
               // )
             }
           </Item>
-          <Item label="Categories">
+          <Item label="Kategori">
             {this.props.categories.loading ? (
               <div>Loading ...</div>
             ) : (
@@ -136,13 +136,13 @@ class CreatePost extends Component {
             <Button
               disabled={submitDraftDisabled}
               onClick={this.handleSubmitDraft}>
-              Save as Draft
+              Simpan sebagai Draft
             </Button>
             <Button
               type="primary"
               disabled={submitReviewDisabled}
               onClick={this.handleSubmitReview}>
-              Submit for Review
+              Kumpulkan untuk diulas
             </Button>
           </div>
         </Form>
