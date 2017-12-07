@@ -82,7 +82,7 @@
     "zopfli-webpack-plugin": "^0.1.0"
   },
   "dependencies": {
-    "antd": "^2.13.2",
+    "antd": "^2.13.11",
     "apollo-local-query": "^0.3.1",
     "apollo-server-koa": "^1.2.0",
     "boxen": "^1.2.2",

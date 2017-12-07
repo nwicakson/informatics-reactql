@@ -11,11 +11,10 @@ const { Panel } = Collapse;
 
 export const Categories = graphql(categoriesQuery)(props => {
   const { data } = props;
-  if (data.loading) return <div />;
-  return (
+  return data && data.loading ? <div /> : (
     <div className={css.list}>
       <ul>
-        {data.categories.map(category => <li><Link to={`/kategori/${category.slug}`}>{category.name}</Link></li>)}
+        {data.categories.map(category => <li key={category.slug}><Link to={`/kategori/${category.slug}`}>{category.name}</Link></li>)}
       </ul>
     </div>
   );
@@ -23,17 +22,15 @@ export const Categories = graphql(categoriesQuery)(props => {
 
 export const Links = graphql(linksQuery)(props => {
   const { data } = props;
-  if (data.loading) return <div />;
-  return (
+  return data && data.loading ? <div /> : (
     <div className={css.list}>
       <ul>
         {data.links.map(link => {
           const { link_name: name, link_url: url } = link;
-          return <li><a href={url}>{name}</a></li>;
+          return <li key={name}><a href={url}>{name}</a></li>;
         })}
       </ul>
     </div>
-
   );
 });
 
@@ -43,17 +40,15 @@ export const HotNews = graphql(hotNewsQuery, {
   }),
 })(props => {
   const { data } = props;
-  if (data.loading) return <div />;
-  return (
+  return data && data.loading ? <div /> : (
     <div className={css.list}>
       <ul>
         {data.posts.map(post => {
           const { post_name: postName, post_title: postTitle } = post;
-          return <li><Link to={`/${encodeURIComponent(postName)}`}>{postTitle}</Link></li>;
+          return <li key={postName}><Link to={`/${encodeURIComponent(postName)}`}>{postTitle}</Link></li>;
         })}
       </ul>
     </div>
-
   );
 });
 
@@ -72,14 +67,11 @@ export const LeftContent = props => {
 };
 
 export const RightContent = props => {
-  const activeKey = props.active ? ['1', '2'] : [];
+  const activeKey = props.active ? ['1'] : [];
   return (
     <Collapse defaultActiveKey={activeKey} className={css.collapse}>
       <Panel header="Berita Terbaru" key="1">
         <HotNews />
-      </Panel>
-      <Panel header="Tautan" key="2">
-        <Links />
       </Panel>
     </Collapse>
   );

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 const { Item, Divider } = Menu;
 
-export default ({ user, refetch }) => {
+export default ({ session: { user }, refetch }) => {
   const { display_name: displayName } = user;
   const handleClick = e => {
     if (e.key === 'logout') {
@@ -25,10 +25,8 @@ export default ({ user, refetch }) => {
     </Menu>
   );
   return (
-    <div>
-      <Dropdown overlay={menu} trigger={['click']} placement="bottomRight">
-        <Button type="primary" size="large"><Icon type="user" /> {displayName} <Icon type="down" /></Button>
-      </Dropdown>
-    </div>
+    <Dropdown overlay={menu} trigger={['click']} placement="bottomRight">
+      <Button type="primary" size="large"><Icon type="user" /> {displayName} <Icon type="down" /></Button>
+    </Dropdown>
   );
 };

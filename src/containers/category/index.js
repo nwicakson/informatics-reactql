@@ -3,10 +3,10 @@ import { Helmet } from 'react-helmet';
 import { graphql } from 'react-apollo';
 import postsCategoryQuery from 'src/graphql/gql/queries/postsCategory.gql';
 import ListCards from 'src/components/listCards';
+import { webSettings } from 'src/settings';
 
 const Category = props => {
-  const { loading } = props.data;
-  if (loading) return <div>Loading</div>;
+  if (props.data && props.data.loading) return <div>Loading ...</div>;
   const {
     refetch, category: { name, posts, total_posts: totalPosts },
     setting: { defaultThumbnail }, variables,
@@ -17,6 +17,7 @@ const Category = props => {
         <title>Category : {name}</title>
         <meta property="og:title" content={`Category : ${name}`} />
         <meta property="og:description" content={`List of category ${name}`} />
+        <meta property="og:url" content={`${webSettings.baseUrl}/kategori/${props.match.params.category}`} />
       </Helmet>
       <h1 style={{ textAlign: 'center' }}>Kategori {name}</h1>
       <ListCards
@@ -33,6 +34,7 @@ export default graphql(postsCategoryQuery, {
   options: ({ match }) => ({
     variables: {
       slug: match.params.category,
+      postType: 'post',
       limit: 12,
       skip: 0,
     },

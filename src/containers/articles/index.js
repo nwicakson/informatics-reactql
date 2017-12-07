@@ -3,10 +3,11 @@ import { Helmet } from 'react-helmet';
 import { graphql } from 'react-apollo';
 import postsQuery from 'src/graphql/gql/queries/posts.gql';
 import ListCards from 'src/components/listCards';
+import { webSettings } from 'src/settings';
 
 const Articles = props => {
   const { loading } = props.data;
-  if (loading) return <div />;
+  if (loading) return <div>Loading...</div>;
   const {
     refetch,
     posts,
@@ -19,6 +20,7 @@ const Articles = props => {
         <title>Articles</title>
         <meta property="og:title" content="Articles" />
         <meta property="og:description" content="List of articles that has been published" />
+        <meta property="og:url" content={`${webSettings.baseUrl}/daftar-artikel`} />
       </Helmet>
       <h1 style={{ textAlign: 'center' }}>Daftar Artikel</h1>
       <ListCards

@@ -1,7 +1,8 @@
-query getMenu($menu: String) {
-  menu(name: $menu) {
+query getMenu($name: String) {
+  menu(name: $name) {
     items {
       order
+      post_title
       object_type
       navitem {
         post_title
@@ -13,7 +14,8 @@ query getMenu($menu: String) {
       }
       url
       children {
-      order
+        order
+        post_title
         object_type
         navitem {
           post_title

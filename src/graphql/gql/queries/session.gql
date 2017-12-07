@@ -7,7 +7,6 @@ query getSession {
       message
     }
     user {
-      id
       display_name
       user_email
     }

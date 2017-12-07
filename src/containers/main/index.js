@@ -25,30 +25,17 @@ import sessionQuery from 'src/graphql/gql/queries/session.gql';
 import { Layout, Icon, Affix } from 'antd';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import MediaQuery from 'react-responsive';
 import { LeftContent, RightContent } from 'src/containers/content/side';
 import MiddleContent from 'src/containers//content/middle';
 import Menu from 'src/components/menu';
 import LanguageSwitcher from 'src/components/languangeSwitcher';
 import User from 'src/components/user';
 import Login from 'src/components/login';
+import { webSettings } from 'src/settings';
 import css from './main.scss';
 import iconHome from './icon-informatika.png';
 
 const { Header, Sider, Content } = Layout;
-
-const CustomizedSider = props => (
-  <MediaQuery maxWidth={1024}>
-    <Sider
-      collapsed={props.collapsed}
-      collapsedWidth={0}
-      width={150}
-      className={css.sider}>
-      <Menu mode="inline" name="header-menu" theme="dark" className={css.menuSider} />
-    </Sider>
-  </MediaQuery>
-);
-CustomizedSider.__ANT_LAYOUT_SIDER = true;
 
 @graphql(sessionQuery)
 export default class Main extends Component {
@@ -57,21 +44,22 @@ export default class Main extends Component {
   };
 
   toggleSidebar = () => {
-    this.setState({
-      collapsed: !this.state.collapsed,
-    });
+    this.setState({ collapsed: !this.state.collapsed });
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 300);
   }
 
   render() {
-    const { data, data: { refetch } } = this.props;
-    const { user } = !data.loading && data.session;
+    const { data } = this.props;
+    const user = data && !data.loading && data.session && data.session.user;
     return (
       <div>
         <Helmet>
           <title>Departemen Informatika, FTIK – ITS</title>
           <link rel="icon" href={iconHome} />
           <meta property="og:site_name" content="Departemen Informatika, FTIK – ITS" />
-          <meta property="og:url" content="https://if.its.ac.id" />
+          <meta property="og:url" content={webSettings.baseUrl} />
           <meta property="og:title" content="Departemen Informatika, FTIK – ITS" />
           <meta property="og:description" content="Jurusan Teknik Informatika" />
           <meta property="og:image" content={iconHome} />
@@ -79,19 +67,15 @@ export default class Main extends Component {
         <Layout>
           <Affix>
             <Header className={css.header}>
-              <MediaQuery maxWidth={1024}>
-                <Icon
-                  className={css.trigger}
-                  type={this.state.collapsed ? 'menu-unfold' : 'menu-fold'}
-                  onClick={this.toggleSidebar} />
-              </MediaQuery>
+              <Icon
+                className={css.trigger}
+                type={this.state.collapsed ? 'menu-unfold' : 'menu-fold'}
+                onClick={this.toggleSidebar} />
               <div className={css.navLeft}>
                 <Link to="/">
                   <img alt="icon" src={iconHome} style={{ verticalAlign: 'middle' }} />
                 </Link>
-                <MediaQuery minWidth={1024}>
-                  <Menu mode="horizontal" name="header-menu" theme="dark" className={css.menuHeader} />
-                </MediaQuery>
+                <Menu mode="horizontal" name="header-menu" theme="dark" className={css.menuHeader} />
               </div>
               <div className={css.navRight}>
                 {
@@ -99,36 +83,36 @@ export default class Main extends Component {
                 //   <LanguageSwitcher />
                 // </MediaQuery>
                 }
-                {user ? <User user={user} refetch={refetch} /> : <Login />}
+                {user ? <User {...data} /> : <Login />}
               </div>
             </Header>
           </Affix>
           <Layout>
-            <CustomizedSider collapsed={this.state.collapsed} />
+            <Sider
+              collapsed={this.state.collapsed}
+              collapsedWidth={0}
+              width={150}
+              className={css.sider}>
+              <Menu mode="inline" name="header-menu" theme="dark" inlineIndent={14} className={css.menuSider} />
+            </Sider>
             {
-              <MediaQuery minWidth={1024}>
-                <Content className={css.sideContent}>
-                  <LeftContent active />
-                </Content>
-              </MediaQuery>
+              <Content className={css.sideContent}>
+                <LeftContent active />
+              </Content>
             }
-            <Content className={css.middleContent}>
-              <MediaQuery maxWidth={1024}>
-                <Content className={css.upperMiddleContent}>
-                  <LeftContent />
-                </Content>
-                <Content className={css.upperMiddleContent}>
-                  <RightContent />
-                </Content>
-              </MediaQuery>
-              <MiddleContent {...this.props} />
+            <Content>
+              <div className={css.middleTopContent}>
+                <LeftContent />
+                <RightContent />
+              </div>
+              <div className={css.middleContent}>
+                <MiddleContent {...this.props} />
+              </div>
             </Content>
             {
-              <MediaQuery minWidth={1024}>
-                <Content className={css.sideContent}>
-                  <RightContent active />
-                </Content>
-              </MediaQuery>
+              <Content className={css.sideContent}>
+                <RightContent active />
+              </Content>
             }
           </Layout>
         </Layout>

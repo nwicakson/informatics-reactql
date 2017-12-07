@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import { Helmet } from 'react-helmet';
-import { Table, Popconfirm, Button, Tag, Select, Pagination, Row, Col } from 'antd';
+import { Table, Popconfirm, Button, Tag, Select, Pagination, notification } from 'antd';
 import { Link } from 'react-router-dom';
 import { graphql, compose } from 'react-apollo';
 import myPostsQuery from 'src/graphql/gql/queries/myPosts.gql';
 import categoriesQuery from 'src/graphql/gql/queries/categories.gql';
 import deletePostMutation from 'src/graphql/gql/mutations/deletePost.gql';
+import { webSettings } from 'src/settings';
 import { startCase } from 'lodash';
 
 const { Option } = Select;
@@ -14,7 +15,7 @@ class MyPosts extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      categories: props.categories[0].slug || [],
+      categories: ['uncategorized'],
       statuses: ['publish', 'draft', 'pending'],
       currentPage: 1,
     };
@@ -45,8 +46,10 @@ class MyPosts extends Component {
   }
 
   handleDelete = async id => {
-    await this.props.deletePost({ variables: { id } });
+    const deletePost = await this.props.deletePost({ variables: { id } });
     this.refetch();
+    if (deletePost) notification.success({ message: 'Artikel berhasil dihapus' });
+    else notification.error({ message: 'Artikel gagal dihapus' });
   }
 
   render() {
@@ -56,42 +59,35 @@ class MyPosts extends Component {
         <Helmet>
           <title>Artikel Saya</title>
           <meta property="og:title" content="Artikel Saya" />
+          <meta property="og:url" content={`${webSettings.baseUrl}/artikel-saya`} />
           <meta property="og:description" content="Daftar usulan artikel saya" />
         </Helmet>
         <h1 style={{ textAlign: 'center' }}>Artikel Saya</h1>
         <br />
-        <Row>
-          <Col span={4}><h3>Status</h3></Col>
-          <Col span={20}>
-            <Select
-              mode="multiple"
-              style={{ minWidth: '200px' }}
-              value={this.state.statuses}
-              onChange={this.handleChangeStatus}>
-              <Option value="draft">Draft</Option>
-              <Option value="pending">Pending</Option>
-              <Option value="publish">Publish</Option>
-            </Select>
-          </Col>
-        </Row>
-        <br />
-        <Row>
-          <Col span={4}><h3>Kategori</h3></Col>
-          <Col span={20}>
-            {categories.loading ? <div>Loading ...</div> : (
-              <Select
-                mode="multiple"
-                style={{ minWidth: '200px' }}
-                value={this.state.categories}
-                onChange={this.handleChangeCategories}>
-                {categories.map(category => <Option key={category.slug}>{category.name}</Option>)}
-              </Select>
-            )}
-          </Col>
-        </Row>
-        <br />
+        <h3>Status</h3>
+        <Select
+          mode="multiple"
+          style={{ minWidth: '200px' }}
+          value={this.state.statuses}
+          onChange={this.handleChangeStatus}>
+          <Option value="draft">Draft</Option>
+          <Option value="pending">Pending</Option>
+          <Option value="publish">Publish</Option>
+        </Select>
+        <br /><br />
+        <h3>Kategori</h3>
+        {categories && categories.loading ? <div>Loading ...</div> : (
+          <Select
+            mode="multiple"
+            style={{ minWidth: '200px' }}
+            value={this.state.categories}
+            onChange={this.handleChangeCategories}>
+            {categories && categories.categories.map(category => <Option key={category.slug}>{category.name}</Option>)}
+          </Select>
+        )}
+        <br /><br />
         {(() => {
-          if (myPosts.loading) return <div>Loading ...</div>;
+          if (myPosts && myPosts.loading) return <div>Loading ...</div>;
           const Actions = ({ id }) => (
             <span>
               <Button>
@@ -109,16 +105,22 @@ class MyPosts extends Component {
             </span>
           );
           const columns = [
-            { title: 'ID', width: 100, key: 'id', render: record => <span>{record.id}</span> },
+            { title: 'ID', width: 50, key: 'id', render: record => <span>{record.id}</span> },
             { title: 'Judul', width: 400, key: 'title', dataIndex: 'post_title' },
             { title: 'Status', width: 100, key: 'status', render: record => <span>{startCase(record.post_status)}</span> },
-            { title: 'Kategori', width: 150, key: 'categories', render: record => <span>{record.categories.map(category => <Tag>{category.name}</Tag>)}</span> },
+            { title: 'Kategori',
+              width: 150,
+              key: 'categories',
+              render: record => (
+                <span>{record.categories.map(category => <Tag key={category.name}>{category.name}</Tag>)}</span>
+              ) },
             { title: 'Aksi', width: 200, key: 'action', render: record => <Actions {...record} /> },
           ];
           return (
-            <Row>
+            <div>
               <Table
                 rowKey="id"
+                scroll={{ x: 850 }}
                 dataSource={myPosts.my_posts}
                 columns={columns}
                 expandedRowRender={record => {
@@ -127,14 +129,14 @@ class MyPosts extends Component {
                 }}
                 pagination={false} />
               <br />
-              <Col align="middle" span={24}>
+              <div style={{ textAlign: 'center' }}>
                 <Pagination
                   simple
                   current={this.state.currentPage}
                   onChange={this.handleChangeCurrentPage}
                   total={myPosts.my_total_posts} />
-              </Col>
-            </Row>
+              </div>
+            </div>
           );
         })()}
       </div>
@@ -142,14 +144,17 @@ class MyPosts extends Component {
   }
 }
 
-const MyPostsWithQuery = compose(
+export default compose(
+  graphql(categoriesQuery, {
+    name: 'categories',
+  }),
   graphql(myPostsQuery, {
     name: 'myPosts',
-    options: ({ categories }) => ({
+    options: () => ({
       variables: {
-        categories: categories[0].slug,
+        categories: ['uncategorized'],
         statuses: ['publish', 'draft', 'pending'],
-        limit: 100,
+        limit: 10,
         skip: 0,
       },
     }),
@@ -158,7 +163,3 @@ const MyPostsWithQuery = compose(
     name: 'deletePost',
   }),
 )(MyPosts);
-
-export default graphql(categoriesQuery, {
-  name: 'categories',
-})(props => <MyPostsWithQuery categories={props.categories.categories} />);

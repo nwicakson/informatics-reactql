@@ -6,6 +6,7 @@ import myPostQuery from 'src/graphql/gql/queries/myPost.gql';
 import categoriesQuery from 'src/graphql/gql/queries/categories.gql';
 import editPostMutation from 'src/graphql/gql/mutations/editPost.gql';
 import { map } from 'lodash';
+import { webSettings } from 'src/settings';
 import css from './editPost.scss';
 
 const { TextArea } = Input;
@@ -20,17 +21,14 @@ class EditPost extends Component {
       excerpt: '',
       content: '',
       categories: [],
-      status: '',
       submitLoading: false,
     };
-    if (document) {
-      this.ReactQuill = require('react-quill');
-    }
+    if (document) this.ReactQuill = require('react-quill');
   }
 
   componentWillReceiveProps(newProps) {
     if (!newProps.myPost.loading) {
-      const { post_title: title, post_excerpt: excerpt, post_content: content, categories } = newProps.myPost.my_post;
+      const { post_title: title, post_excerpt: excerpt, post_content: content, categories } = newProps.myPost.my_post && newProps.myPost.my_post;
       this.setState({
         title,
         excerpt,
@@ -45,16 +43,8 @@ class EditPost extends Component {
   handleChangeContent = value => this.setState({ content: value })
 
   handleNotificationClose = () => this.setState({ submitLoading: false })
-
-  handleSubmitDraft = async () => {
-    await this.setState({ status: 'draft', submitLoading: true });
-    this.handleSubmit();
-  }
-  handleSubmitReview = async () => {
-    await this.setState({ status: 'pending', submitLoading: true });
-    this.handleSubmit();
-  }
-  handleSubmit = async () => {
+  handleSubmit = async status => {
+    await this.setState({ submitLoading: true });
     const { data: { edit_post: editPost } } = await this.props.editPost({
       variables: {
         id: this.props.match.params.postId,
@@ -62,17 +52,17 @@ class EditPost extends Component {
         post_excerpt: this.state.excerpt,
         post_content: this.state.content,
         categories: this.state.categories,
-        post_status: this.state.status,
+        post_status: status,
       },
     });
     if (editPost) {
       notification.success({
-        message: 'Post has been edited successfully',
+        message: 'Artikel berhasil diperbarui',
         onClose: this.handleNotificationClose,
       });
     } else {
       notification.error({
-        message: 'Failed to edit post',
+        message: 'Artikel gagal diperbarui',
         onClose: this.handleNotificationClose,
       });
     }
@@ -86,6 +76,7 @@ class EditPost extends Component {
           <title>Ubah Artikel</title>
           <meta property="og:title" content="Ubah Artikel" />
           <meta property="og:description" content="Ubah usulan artikel" />
+          <meta property="og:url" content={`${webSettings.baseUrl}/ubah-artikel`} />
         </Helmet>
         <Form layout="vertical">
           <h1 style={{ textAlign: 'center' }}>Ubah Artikel</h1>
@@ -135,10 +126,11 @@ class EditPost extends Component {
               </Select>
             )}
           </Item>
-          <div className={css.submit}>
-            <Button onClick={this.handleSubmitDraft} loading={this.state.submitLoading}>Simpan sebagai Draft</Button>
-            <Button onClick={this.handleSubmitReview} loading={this.state.submitLoading} type="primary">Kumpulkan untuk diulas</Button>
-          </div>
+          <ul className={css.submit}>
+            <li><Button onClick={() => this.handleSubmit('draft')} loading={this.state.submitLoading}>Simpan sebagai Draft</Button></li>
+            <li>atau</li>
+            <li><Button onClick={() => this.handleSubmit('pending')} loading={this.state.submitLoading} type="primary">Kumpulkan untuk diulas</Button></li>
+          </ul>
         </Form>
       </div>
     );

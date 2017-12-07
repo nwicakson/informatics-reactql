@@ -11,9 +11,5 @@ query getPost($post: String){
       user_nicename
       display_name
     }
-  },
-  setting {
-    uploads
-    amazonS3
   }
 }

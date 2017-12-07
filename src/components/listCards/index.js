@@ -7,13 +7,17 @@ export default class ListCards extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentPage: parseInt(props.variables.skip / 12, 10) + 1,
+      currentPage: (
+        props.variables && props.variables.skip && parseInt(props.variables.skip / 12, 10) + 1
+      ) || 1,
     };
   }
 
-  componentWillReceiveProps = nextProps => (
-    this.setState({ currentPage: parseInt(nextProps.variables.skip / 12, 10) + 1 })
-  )
+  componentWillReceiveProps = nextProps => {
+    if (nextProps.variables && nextProps.variables.skip) {
+      this.setState({ currentPage: parseInt(nextProps.variables.skip / 12, 10) + 1 });
+    }
+  }
 
   handleChangeCurrentPage = async pageNumber => this.props.refetch({ skip: 12 * (pageNumber - 1) })
 
@@ -21,16 +25,13 @@ export default class ListCards extends Component {
     return (
       <div>
         <Row>
-          {this.props.posts.map(post => {
-            const { post_title: title, post_name: name, thumbnail, post_excerpt: postExcerpt } = post;
+          {this.props.posts && this.props.posts.map(post => {
+            const { id, post_title: title, post_name: name, thumbnail, post_excerpt: postExcerpt } = post;
             const image = thumbnail || this.props.defaultThumbnail;
-            const content = {
-              __html: postExcerpt,
-            };
             return (
-              <Col xs={24} sm={12} md={8} lg={6} xl={6}>
+              <Col key={id} xs={24} sm={12} md={8} lg={6} xl={6}>
                 <div style={{ padding: '5px' }}>
-                  <Card className={css.card} bodyStyle={{ padding: 0 }}>
+                  <Card bodyStyle={{ padding: 0 }}>
                     <Link to={`/${encodeURIComponent(name)}`}>
                       <div style={{ backgroundImage: `url(${image})`, backgroundSize: 'cover', backgroundPosition: 'center', height: '150px' }} />
                     </Link>
@@ -39,7 +40,7 @@ export default class ListCards extends Component {
                         <h3>{title}</h3>
                       </div>
                       <div className={css.cardContent}>
-                        <p dangerouslySetInnerHTML={content} />
+                        <p>{postExcerpt} </p>
                       </div>
                     </div>
                   </Card>

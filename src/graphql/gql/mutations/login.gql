@@ -7,8 +7,7 @@ mutation login($username: String, $password: String) {
     }
     jwt
     user {
-      id
-      user_nicename
+      display_name
       user_email
     }
   }

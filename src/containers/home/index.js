@@ -7,7 +7,12 @@ import css from './home.scss';
 
 const Home = props => {
   const { data } = props;
-  if (data.loading) return <div />;
+  if (data.loading) return <div>Loading ...</div>;
+  if (!SERVER) {
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 300);
+  }
   return (
     <Carousel
       autoplay

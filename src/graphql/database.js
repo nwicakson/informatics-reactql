@@ -7,6 +7,8 @@ import { checkPassword, encodeJWT, decodeJWT } from 'src/lib/hash';
 import FormError from 'src/lib/error';
 /* eslint-disable camelcase */
 
+const { Op } = Sequelize;
+
 export default class Database {
   constructor(settings) {
     this.settings = settings;
@@ -198,7 +200,7 @@ export default class Database {
           user_id: user.id,
           meta_key: `${prefix}capabilities`,
           meta_value: {
-            $like: '%contributor%',
+            [Op.like]: '%contributor%',
           },
         },
       });
@@ -401,10 +403,10 @@ export default class Database {
         Post.destroy({
           where: {
             post_author: user.id,
-            $or: [
+            [Op.or]: [
               { id },
               {
-                post_name: { $like: `${id}-revision%` },
+                post_name: { [Op.like]: `${id}-revision%` },
                 post_status: 'inherit',
               },
             ],
@@ -480,7 +482,7 @@ export default class Database {
         const n = 55;
         let resultArray = splitContent.join('').split(' ');
         if (resultArray.length > n) resultArray = resultArray.slice(0, n);
-        return `${resultArray.join(' ')}`;
+        return `${resultArray.join(' ')} ...`;
       },
 
       getSetting() {
@@ -494,7 +496,7 @@ export default class Database {
           termsId = await Terms.findAll({
             where: {
               name: {
-                $in: categories,
+                [Op.in]: categories,
               },
             },
           }).then(terms => lodash.map(terms, 'term_id'));
@@ -510,7 +512,7 @@ export default class Database {
             model: TermRelationships,
             where: {
               term_taxonomy_id: {
-                $in: termsId,
+                [Op.in]: termsId,
               },
             },
           },
@@ -518,7 +520,7 @@ export default class Database {
             post_author: user.id,
             post_type: 'post',
             post_status: {
-              $in: statuses,
+              [Op.in]: statuses,
             },
           },
           limit,
@@ -536,7 +538,7 @@ export default class Database {
           termsId = await Terms.findAll({
             where: {
               name: {
-                $in: categories,
+                [Op.in]: categories,
               },
             },
           }).then(terms => lodash.map(terms, 'term_id'));
@@ -552,7 +554,7 @@ export default class Database {
             model: TermRelationships,
             where: {
               term_taxonomy_id: {
-                $in: termsId,
+                [Op.in]: termsId,
               },
             },
           },
@@ -560,7 +562,7 @@ export default class Database {
             post_author: user.id,
             post_type: 'post',
             post_status: {
-              $in: statuses,
+              [Op.in]: statuses,
             },
           },
         });
@@ -574,7 +576,7 @@ export default class Database {
             post_type: 'post',
             post_author: user.id,
             post_status: {
-              $not: 'publish',
+              [Op.not]: 'publish',
             },
           },
         });
@@ -647,7 +649,7 @@ export default class Database {
         return Terms.findAll({
           where: {
             term_id: {
-              $in: lodash.map(categoriesId, 'term_taxonomy_id'),
+              [Op.in]: lodash.map(categoriesId, 'term_taxonomy_id'),
             },
           },
         });
@@ -765,7 +767,7 @@ export default class Database {
           where: {
             meta_id: metaId,
             meta_key: {
-              $in: keys,
+              [Op.in]: keys,
             },
           },
         });
@@ -776,7 +778,7 @@ export default class Database {
           where: {
             post_id: postId,
             meta_key: {
-              $in: keys,
+              [Op.in]: keys,
             },
           },
         });
