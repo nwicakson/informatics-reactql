@@ -1,38 +1,8 @@
 {
   "web": {
-    "baseUrl": "http://if.its.ac.id"
+    "baseUrl": "http://beta.if.its.ac.id"
   },
   "data": {
-    "public": {
-      "amazonS3": false,
-      "baseUrl": "http://localhost/nwicakson/ifweb",
-      "uploads": "http://localhost/nwicakson/ifweb/wp-content/uploads/",
-      "defaultThumbnail": "http://localhost/nwicakson/ifweb/wp-content/uploads/2017/11/default-thumbnail.jpg",
-      "staffProperties": [
-        "name",
-        "category",
-        "email",
-        "field_of_research",
-        "last_education_degree",
-        "last_education_place",
-        "position"
-      ],
-      "menu": "header-menu"
-    },
-    "private": {
-      "wpPrefix": "wp_",
-      "database": {
-        "name": "if_id",
-        "username": "root",
-        "password": "",
-        "host": "localhost"
-      }
-    }
-  },
-  "web2": {
-    "baseUrl": "http://beta.its.ac.id"
-  },
-  "data2": {
     "public": {
       "amazonS3": false,
       "baseUrl": "http://old.if.its.ac.id",
@@ -52,9 +22,9 @@
     "private": {
       "wpPrefix": "wp_",
       "database": {
-        "name": "ifweb3",
-        "username": "if",
-        "password": "ifw3bsit3s",
+        "name": "if_id",
+        "username": "root",
+        "password": "",
         "host": "localhost"
       }
     }
