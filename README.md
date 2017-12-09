@@ -4,5 +4,6 @@ Prepare:
 1. npm install
 2. Install xampp
 3. Move folder wordpress to xampp htdocs folder
-4. Import if_id.sql in fordler wordpress in localhost/phpmyadmin
-5. npm run build-run
+4. Run Apache Web Server & MySQL Database in xampp
+5. Import if_id.sql in fordler wordpress in localhost/phpmyadmin
+6. npm run build-run
